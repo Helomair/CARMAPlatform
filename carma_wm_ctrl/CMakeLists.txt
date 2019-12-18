@@ -50,17 +50,18 @@ include_directories(
 )
 
 ## Declare C++ library
-#add_library(${PROJECT_NAME}
-#  src/CARMAWorldModel.cpp
-#)
+add_library(${PROJECT_NAME}
+  src/WMBroadcaster.cpp
+  src/WMBroadcasterNode.cpp
+)
 
 ## Add cmake target dependencies of the library
-#add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-#target_link_libraries(${PROJECT_NAME}
-#  ${catkin_LIBRARIES}
-#)
+target_link_libraries(${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##
