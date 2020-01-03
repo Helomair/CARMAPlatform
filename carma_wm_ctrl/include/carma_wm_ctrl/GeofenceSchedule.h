@@ -1,6 +1,6 @@
 #pragma once
 /*
- * Copyright (C) 2019 LEIDOS.
+ * Copyright (C) 2020 LEIDOS.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -23,9 +23,8 @@ class GeofenceSchedule
   ros::Time schedule_start;
   ros::Time schedule_end;
 
-  // TODO day of the week?
-  ros::Time control_start;
-  ros::Time control_end;
+  ros::Duration control_start; // Duration from start of day
+  ros::Duration control_end; // Duration from start of day
   ros::Duration control_duration;
   ros::Duration control_interval;
 
@@ -64,27 +63,27 @@ class GeofenceSchedule
 
     // TODO
     // If time of day is between control_start and control_end
-    boost::posix_time::ptime t(date, hour(0)); // Get absolute start time of the day
+    boost::posix_time::ptime t(date,  boost::posix_time::hours(0)); // Get absolute start time of the day
 
     ros::Time ros_time_of_day = ros::Time::fromBoost(time_of_day);
     ros::Time abs_day_start = ros::Time::fromBoost(t);
-    ros::Time cur_start = control_start;
-    ros::Time cur_end = control_end;
+    ros::Duration cur_start = control_start;
+    ros::Duration cur_end = control_end;
 
     constexpr int num_sec_in_day = 86400;
-    constexpr ros::Time full_day(num_sec_in_day);
+    const ros::Duration full_day(num_sec_in_day);
 
-    while (cur_start < full_day && ros_time_of_day > cur_start) {
+    while (cur_start < full_day && ros_time_of_day > ros::Time(cur_start.toSec())) {
       cur_start += control_interval;
     }
 
     // check if the only next interval is after the schedule end or past the end of the day
-    if (cur_start + abs_day_start > schedule_end || cur_start > full_day) {
+    if ( abs_day_start + cur_start > schedule_end || cur_start > full_day) {
       return ros::Time(0);
     }
 
     // At this point we should have the next start time which is still within the schedule and day
-    return cur_start;
+    return abs_day_start + cur_start;
   }
   // TODO the UTC offset is provided in the geofence spec but for now we will ignore and assume all times are UTC
 };

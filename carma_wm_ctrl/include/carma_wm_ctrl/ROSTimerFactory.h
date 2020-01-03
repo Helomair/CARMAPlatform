@@ -1,6 +1,6 @@
 #pragma once
 /*
- * Copyright (C) 2019 LEIDOS.
+ * Copyright (C) 2020 LEIDOS.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -21,13 +21,13 @@
 
 namespace carma_wm_ctrl
 {
-class ROSTimerFactory
+class ROSTimerFactory : public TimerFactory
 {
 public:
   ~ROSTimerFactory(){};
 
   std::unique_ptr<Timer> buildTimer(uint32_t id, ros::Duration duration, std::function<void(const ros::TimerEvent&)> callback,
-                                    bool oneshot = false, bool autostart = true)
+                                    bool oneshot = false, bool autostart = true) override
   {
      std::unique_ptr<Timer> timer_ptr = std::make_unique<ROSTimer>();
     timer_ptr->initializeTimer(duration, callback, oneshot, autostart);

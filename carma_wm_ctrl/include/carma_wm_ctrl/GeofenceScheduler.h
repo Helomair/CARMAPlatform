@@ -1,6 +1,6 @@
 #pragma once
 /*
- * Copyright (C) 2019 LEIDOS.
+ * Copyright (C) 2020 LEIDOS.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -37,6 +37,8 @@ class GeofenceScheduler
   std::function<void(const Geofence&)> inactive_callback_;
   uint32_t next_id_ = 0;
 
+  public:
+
   GeofenceScheduler(std::unique_ptr<TimerFactory> timerFactory) : timerFactory_(std::move(timerFactory))
   {
     // Create repeating loop to clear geofence timers which are no longer needed
@@ -52,7 +54,7 @@ class GeofenceScheduler
 
   void clearTimers()
   {
-    std::lock_guard guard(mutex_);
+    std::lock_guard<std::mutex> guard(mutex_);
     for (const auto& key_val_pair : timers)
     {
       if (key_val_pair.second.second)
@@ -65,7 +67,7 @@ class GeofenceScheduler
 
   void addGeofence(Geofence geofence)
   {
-    std::lock_guard guard(mutex_);
+    std::lock_guard<std::mutex> guard(mutex_);
     // Create timer for next start time
     ros::Time startTime = geofence.schedule.getNextInterval(ros::Time::now());
     // TODO check startTime is valid
@@ -78,7 +80,7 @@ class GeofenceScheduler
 
   void startGeofenceCallback(const ros::TimerEvent& event, const Geofence& gf, const int32_t timer_id)
   {
-    std::lock_guard guard(mutex_);
+    std::lock_guard<std::mutex> guard(mutex_);
 
     active_callback_(gf);
     ros::Time endTime = gf.schedule.getNextInterval(ros::Time::now());  // TODO there might be some challenges with this
@@ -94,20 +96,20 @@ class GeofenceScheduler
 
   void endGeofenceCallback(const ros::TimerEvent& event, const Geofence& gf, const int32_t timer_id)
   {
-    std::lock_guard guard(mutex_);
+    std::lock_guard<std::mutex> guard(mutex_);
     inactive_callback_(gf);
     timers[timer_id].second = true;  // Mark timer for deletion
   }
 
   void onGeofenceActive(std::function<void(const Geofence&)> active_callback)
   {
-    std::lock_guard guard(mutex_);
+    std::lock_guard<std::mutex> guard(mutex_);
     active_callback_ = active_callback;
   }
 
   void onGeofenceInactive(std::function<void(const Geofence&)> inactive_callback)
   {
-    std::lock_guard guard(mutex_);
+    std::lock_guard<std::mutex> guard(mutex_);
     inactive_callback_ = inactive_callback;
   }
 };

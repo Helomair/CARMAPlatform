@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (C) 2019 LEIDOS.
+ * Copyright (C) 2020 LEIDOS.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -25,6 +25,7 @@
 #include <boost/icl/interval_set.hpp>
 #include <unordered_set>
 #include "ros/ros.h"
+#include <carma_wm_ctrl/GeofenceScheduler.h>
 
 namespace carma_wm_ctrl  // TODO should this be carma_wm or carma_wm_ctrl?
 {
@@ -45,7 +46,7 @@ public:
   /*!
    * \brief Constructor
    */
-  WMBroadcaster(PublishMapCallback map_pub);
+  WMBroadcaster(PublishMapCallback map_pub, std::unique_ptr<TimerFactory> timer_factory);
 
   /*!
    * \brief Callback to set the base map when it has been loaded
@@ -66,16 +67,19 @@ public:
   /*!
    * \brief Adds a geofence to the current map
    */
-  void addGeofence(/*TODO*/);
+  void addGeofence(const Geofence& gf);
 
   /*!
    * \brief Removes a geofence from the current map
    */
-  void removeGeofence(/*TODO*/);
+  void removeGeofence(const Geofence& gf);
 
 private:
-  lanelet::LaneletMapPtr semantic_map_;
+  lanelet::LaneletMapPtr base_map_;
+  lanelet::LaneletMapPtr current_map_;
+  std::vector<lanelet::LaneletMapPtr> cached_maps_;
   std::mutex map_mutex_;
   PublishMapCallback map_pub_;
+  GeofenceScheduler scheduler_;
 };
 }  // namespace carma_wm_ctrl
