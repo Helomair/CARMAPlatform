@@ -86,11 +86,12 @@ target_link_libraries(${PROJECT_NAME}
 ## Testing ##
 #############
 
-#catkin_add_gmock(${PROJECT_NAME}-test
-#  test/TestMain.cpp
-#  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test # Add test directory as working directory for unit tests
-#)
+catkin_add_gmock(${PROJECT_NAME}-test
+ test/TestMain.cpp
+ test/TempTest.cpp
+ WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test # Add test directory as working directory for unit tests
+)
 
-#if(TARGET ${PROJECT_NAME}-test)
-#  target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME} ${catkin_LIBRARIES})
-#endif()
+if(TARGET ${PROJECT_NAME}-test)
+ target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME} ${catkin_LIBRARIES})
+endif()

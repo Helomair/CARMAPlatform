@@ -21,7 +21,6 @@
 #include <lanelet2_core/primitives/Lanelet.h>
 #include <lanelet2_core/geometry/Lanelet.h>
 #include <type_traits>
-
 // TODO add ros logging
 
 // TODO consider applying the lanelet2_extension for overwriting lanelet centerlines
@@ -29,6 +28,10 @@
 // TODO remove includes below here
 #include <carma_wm_ctrl/ROSTimerFactory.h>
 #include <carma_wm_ctrl/GeofenceScheduler.h>
+#include <carma_wm_ctrl/DigitalSpeedLimit.h>
+#include <carma_wm_ctrl/PassingControlLine.h>
+#include <carma_wm_ctrl/RegionAccessRule.h>
+
 
 namespace carma_wm_ctrl  // TODO should this be carma_wm or carma_wm_ctrl?
 {
@@ -58,6 +61,7 @@ void WMBroadcaster::baseMapCallback(const autoware_lanelet2_msgs::MapBinConstPtr
 
   // TODO consider saving origianal map as well as updated map for geometry updates
   base_map_ = new_map;
+  //lanelet::LaneletMapPtr other_map = lanelet::utils::createMap(base_map_->laneletLayer);
   //current_map_ = lanelet::createMap();
   // TODO warning if this is called multiple times?
 };
