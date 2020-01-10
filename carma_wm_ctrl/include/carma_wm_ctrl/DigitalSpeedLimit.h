@@ -1,4 +1,4 @@
-
+#pragma once
 #include <lanelet2_core/primitives/RegulatoryElement.h> 
 #include <boost/algorithm/string.hpp> 
 #include "RegulatoryHelpers.h"
@@ -15,7 +15,7 @@ class DigitalSpeedLimit : public RegulatoryElement {
  public:
   using Ptr = std::shared_ptr<DigitalSpeedLimit>; // TODO needed?
   static constexpr char RuleName[] = "digital_speed_limit";
-  double speed_limit_;
+  Velocity speed_limit_;
   std::unordered_set<std::string> participants_;
 
   ConstLineString3d startLine() const {
@@ -38,22 +38,22 @@ class DigitalSpeedLimit : public RegulatoryElement {
     return line_strings[0];
   }
 
-  double getSpeedLimit() {
+  Velocity getSpeedLimit() const {
     return speed_limit_;
   }
 
-  void setSpeedLimit(double speed_limit) {
+  void setSpeedLimit(Velocity speed_limit) {
     speed_limit_ = speed_limit;
   }
 
-  bool appliesTo(const std::string& participant) {
+  bool appliesTo(const std::string& participant) const {
     return setContainsParticipant(participants_, participant);
   }
 
  protected:
 
   // TODO some work might be required to make this loadable from a file
-  DigitalSpeedLimit(Id id, double speed_limit, LineString3d start_line, LineString3d end_line, std::vector<std::string> participants) 
+  DigitalSpeedLimit(Id id, Velocity speed_limit, LineString3d start_line, LineString3d end_line, std::vector<std::string> participants) 
     : RegulatoryElement{std::make_shared<lanelet::RegulatoryElementData>(id)},
       speed_limit_(speed_limit),
       participants_(participants.begin(), participants.end())
@@ -75,10 +75,10 @@ constexpr char DigitalSpeedLimit::RuleName[];  // instanciate string in cpp file
 #endif
 }  // namespace example
 
-namespace {
-// this object actually does the registration work for us
-lanelet::RegisterRegulatoryElement<lanelet::DigitalSpeedLimit> reg;
-}  
+// namespace {
+// // this object actually does the registration work for us
+// lanelet::RegisterRegulatoryElement<lanelet::DigitalSpeedLimit> reg;
+// }  
 
 //HERE
 /*

@@ -31,6 +31,7 @@
 #include <carma_wm_ctrl/DigitalSpeedLimit.h>
 #include <carma_wm_ctrl/PassingControlLine.h>
 #include <carma_wm_ctrl/RegionAccessRule.h>
+#include <carma_wm_ctrl/CarmaUSTrafficRules.h>
 
 
 namespace carma_wm_ctrl  // TODO should this be carma_wm or carma_wm_ctrl?

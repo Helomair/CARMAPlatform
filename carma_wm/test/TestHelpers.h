@@ -115,8 +115,42 @@ inline void addStraightRoute(CARMAWorldModel& cmw)
   cmw.setMap(map);
 }
 
+inline void printInvertedIds()
+{
+  auto p1 = getPoint(0, 0, 0);
+  auto p2 = getPoint(0, 1, 0);
+  auto p3 = getPoint(1, 1, 0);
+  auto p4 = getPoint(1, 2, 0);
+  auto p5 = getPoint(1, 0, 0);
+  auto p6 = getPoint(2, 0, 0);
+  auto p7 = getPoint(2, 1, 0);
+  auto p8 = getPoint(2, 2, 0);
+  lanelet::LineString3d left_ls_1(lanelet::utils::getId(), { p2, p1 });
+  lanelet::LineString3d right_ls_1(lanelet::utils::getId(), { p5, p3 });
+  auto inverted_left = left_ls_1.invert();
+  auto inverted_right = right_ls_1.invert();
+  auto ll_1 = getLanelet(inverted_left, inverted_right, lanelet::AttributeValueString::SolidSolid,
+                         lanelet::AttributeValueString::Dashed);
+
+  std::cerr << "ll_1 leftId: " << ll_1.leftBound().id() << " inverted: " << ll_1.leftBound().inverted() << std::endl;
+  std::cerr << "ll_1 rightId: " << ll_1.rightBound().id() << " inverted: " << ll_1.rightBound().inverted() << std::endl;
+
+  lanelet::LineString3d right_ls_2(lanelet::utils::getId(), { p6, p7 });
+  auto ll_2 =
+      getLanelet(right_ls_1, right_ls_2, lanelet::AttributeValueString::Dashed, lanelet::AttributeValueString::Solid);
+
+  std::cerr << "ll_2 leftId: " << ll_2.leftBound().id() << " inverted: " << ll_2.leftBound().inverted() << std::endl;
+  std::cerr << "ll_2 rightId: " << ll_2.rightBound().id() << " inverted: " << ll_2.rightBound().inverted() << std::endl;
+
+  lanelet::LineString3d left_ls_3(lanelet::utils::getId(), { p3, p4 });
+  lanelet::LineString3d right_ls_3(lanelet::utils::getId(), { p7, p8 });
+  auto ll_3 =
+      getLanelet(left_ls_3, right_ls_3, lanelet::AttributeValueString::Solid, lanelet::AttributeValueString::Solid);
+}
+
 inline void addDisjointRoute(CARMAWorldModel& cmw)
 {
+  printInvertedIds(); // TODO remove
   // 1. Construct map
   auto p1 = getPoint(0, 0, 0);
   auto p2 = getPoint(0, 1, 0);

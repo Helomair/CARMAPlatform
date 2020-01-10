@@ -1,4 +1,4 @@
-
+#pragma once
 #include <lanelet2_core/primitives/RegulatoryElement.h>
 #include <lanelet2_core/primitives/LaneletOrArea.h>  
 #include <lanelet2_core/primitives/Lanelet.h> 
@@ -29,7 +29,7 @@ class RegionAccessRule : public RegulatoryElement {
     return getParameters<ConstArea>(RoleName::Refers);
   }
 
-  bool accessable(const std::string& participant) {
+  bool accessable(const std::string& participant) const {
     return setContainsParticipant(participants_, participant);
   }
 
@@ -58,10 +58,10 @@ constexpr char RegionAccessRule::RuleName[];  // instantiate string in cpp file
 #endif
 }  // namespace example
 
-namespace {
-// this object actually does the registration work for us
-lanelet::RegisterRegulatoryElement<lanelet::RegionAccessRule> reg_rar; // TODO
-}  
+// namespace {
+// // this object actually does the registration work for us
+// lanelet::RegisterRegulatoryElement<lanelet::RegionAccessRule> reg_rar; // TODO
+// }  
 
 //HERE
 /*

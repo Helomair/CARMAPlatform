@@ -1,6 +1,6 @@
-
+#pragma once
 #include <lanelet2_core/primitives/RegulatoryElement.h> 
-#include <boost/algorithm/string.hpp> 
+#include <boost/algorithm/string.hpp>
 #include "RegulatoryHelpers.h"
 
 namespace lanelet {
@@ -23,32 +23,69 @@ class PassingControlLine : public RegulatoryElement {
    * @brief get the line this regulation applies to
    * @return the line as a line string
    */
-  ConstLineString3d controlLine() const {
-    auto line_strings = getParameters<ConstLineString3d>(RoleName::RefLine);
-    return line_strings[0];
+  ConstLineStrings3d controlLine() const {
+    return getParameters<ConstLineString3d>(RoleName::RefLine);
   }
-  LineString3d controlLine() {
-    auto line_strings = getParameters<LineString3d>(RoleName::RefLine);
-    return line_strings[0];
+  LineStrings3d controlLine() {
+    return getParameters<LineString3d>(RoleName::RefLine);
   }
 
-  bool passableFromLeft(const std::string& participant) {
+  bool passableFromLeft(const std::string& participant) const {
     return setContainsParticipant(left_participants_, participant);
   }
 
-  bool passableFromRight(const std::string& participant) {
+  bool passableFromRight(const std::string& participant) const {
     return setContainsParticipant(right_participants_, participant);
+  }
+
+  // TODO none of the left or right lanelets are required. We just need to match the bounds of the lanelet or area 
+  void addLeftLanelets(const Lanelets& lanelets) {
+    auto elements = parameters()[lanelet::RoleNameString::Left];
+    elements.insert(elements.end(), lanelets.begin(), lanelets.end());
+  }
+
+  void addRightLanelets(const Lanelets& lanelets) {
+    auto elements = parameters()[lanelet::RoleNameString::Right];
+    elements.insert(elements.end(), lanelets.begin(), lanelets.end());
+  }
+
+  void addLeftAreas(const Areas& areas) {
+    auto elements = parameters()[lanelet::RoleNameString::Left];
+    elements.insert(elements.end(), areas.begin(), areas.end());
+  }
+
+  void addRightAreas(const Areas& areas) {
+    auto elements = parameters()[lanelet::RoleNameString::Right];
+    elements.insert(elements.end(), areas.begin(), areas.end());
+  }
+
+  ConstLanelets leftLanelets() {
+    return getParameters<ConstLanelet>(lanelet::RoleNameString::Left);
+  }
+
+  ConstLanelets rightLanelets() {
+    return getParameters<ConstLanelet>(lanelet::RoleNameString::Right);
+  }
+
+  ConstAreas leftAreas() {
+    return getParameters<ConstArea>(lanelet::RoleNameString::Left);
+  }
+
+  ConstAreas rightAreas() {
+    return getParameters<ConstArea>(lanelet::RoleNameString::Right);
   }
 
  protected:
 
   // TODO some work might be required to make this loadable from a file
-  PassingControlLine(Id id, LineString3d controlLine, std::vector<std::string> left_participants, std::vector<std::string> right_participants) 
+  PassingControlLine(Id id, LineStrings3d controlLine, std::vector<std::string> left_participants, std::vector<std::string> right_participants) 
     : RegulatoryElement{std::make_shared<lanelet::RegulatoryElementData>(id)},
       left_participants_(left_participants.begin(), left_participants.end()),
       right_participants_(right_participants.begin(), right_participants.end())
   {
-    parameters().insert({lanelet::RoleNameString::RefLine, {controlLine}});
+    auto ref_line_list = parameters()[lanelet::RoleNameString::RefLine];
+
+    ref_line_list.insert(ref_line_list.end(), controlLine.begin(), controlLine.end());
   }
 
   // the following lines are required so that lanelet2 can create this object when loading a map with this regulatory
