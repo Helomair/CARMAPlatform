@@ -52,6 +52,10 @@ add_library(${PROJECT_NAME}
   src/CARMAWorldModel.cpp
   src/WMListener.cpp
   src/WMListenerWorker.cpp
+  src/lanelet/CarmaUSTrafficRules.cpp
+  src/lanelet/PassingControlLine.cpp
+  src/lanelet/DigitalSpeedLimit.cpp
+  src/lanelet/RegionAccessRule.cpp
 )
 
 ## Add cmake target dependencies of the library

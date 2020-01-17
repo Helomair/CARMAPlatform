@@ -28,14 +28,21 @@
 // TODO remove includes below here
 #include <carma_wm_ctrl/ROSTimerFactory.h>
 #include <carma_wm_ctrl/GeofenceScheduler.h>
-#include <carma_wm_ctrl/DigitalSpeedLimit.h>
-#include <carma_wm_ctrl/PassingControlLine.h>
-#include <carma_wm_ctrl/RegionAccessRule.h>
-#include <carma_wm_ctrl/CarmaUSTrafficRules.h>
+#include <carma_wm/lanelet/DigitalSpeedLimit.h>
+#include <carma_wm/lanelet/PassingControlLine.h>
+#include <carma_wm/lanelet/RegionAccessRule.h>
+#include <carma_wm/lanelet/CarmaUSTrafficRules.h>
 
 
 namespace carma_wm_ctrl  // TODO should this be carma_wm or carma_wm_ctrl?
 {
+
+  // NEW PLAN 1/17/2020
+  // 1. Clean up existing header only classes. 
+  // 2. Develop logic for generating regulatory elements from existing map data
+  // 3. Develop place holder functions for geofence data
+  // 4. Develop unit tests for this package
+  // 5. Update carma_wm to use new traffic rules
 
 
 // TODO HERE 1/2/20 The most pressing issue is that logic be added for adding geofences (non-geometric) to the map. Then broadcasting an update. 
