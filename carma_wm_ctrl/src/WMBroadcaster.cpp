@@ -17,6 +17,7 @@
 #include <functional>
 #include <mutex>
 #include <carma_wm_ctrl/WMBroadcaster.h>
+#include <carma_wm_ctrl/MapConformer.h>
 #include <lanelet2_extension/utility/message_conversion.h>
 #include <lanelet2_core/primitives/Lanelet.h>
 #include <lanelet2_core/geometry/Lanelet.h>
@@ -39,18 +40,14 @@ namespace carma_wm_ctrl  // TODO should this be carma_wm or carma_wm_ctrl?
 
   // NEW PLAN 1/17/2020
   // 1. Clean up existing header only classes. 
+  //    -- Completed 
   // 2. Develop logic for generating regulatory elements from existing map data
+  //    -- Completed
   // 3. Develop place holder functions for geofence data
+  //    -- HERE
   // 4. Develop unit tests for this package
   // 5. Update carma_wm to use new traffic rules
-
-
-// TODO HERE 1/2/20 The most pressing issue is that logic be added for adding geofences (non-geometric) to the map. Then broadcasting an update. 
-// This has the following requirements
-// 1. New update message be created
-// 2. Updates be applied to local map copy and tracked
-// 3. Updates be published when applied.
-// 4. Updates be removed when applied. 
+  // 6. Clean up TODOs
 
 WMBroadcaster::WMBroadcaster(PublishMapCallback map_pub, std::unique_ptr<TimerFactory> timer_factory) 
   : map_pub_(map_pub), scheduler_(std::move(timer_factory)) {  
@@ -67,10 +64,9 @@ void WMBroadcaster::baseMapCallback(const autoware_lanelet2_msgs::MapBinConstPtr
 
   lanelet::utils::conversion::fromBinMsg(*map_msg, new_map);
 
-  // TODO consider saving origianal map as well as updated map for geometry updates
   base_map_ = new_map;
-  //lanelet::LaneletMapPtr other_map = lanelet::utils::createMap(base_map_->laneletLayer);
-  //current_map_ = lanelet::createMap();
+  lanelet::MapConformer::ensureCompliance(base_map_);
+
   // TODO warning if this is called multiple times?
 };
 
@@ -82,33 +78,14 @@ void WMBroadcaster::geofenceCallback(/*TODO*/){
 
 void WMBroadcaster::addGeofence(const Geofence& gf){
   std::lock_guard<std::mutex> guard(map_mutex_);
-  // Add the geofence to the map
-  // 1. Identify elements to be modified
-  // -- Use geofence centerline to find impacted elemtents
-
-  for (auto basic_point : gf.centerline) {
-    auto vec_of_pair_dist_lanelet = lanelet::geometry::findNearest(base_map_->laneletLayer, lanelet::utils::to2D(basic_point), 1);
-    if (vec_of_pair_dist_lanelet.empty()) {
-      // TODO throw exception
-    }
-    double distance = vec_of_pair_dist_lanelet[0].first;
-    auto nearest_lanelet = vec_of_pair_dist_lanelet[0].second;
-    // Check for intersection
-    if (!lanelet::geometry::inside(nearest_lanelet, lanelet::utils::to2D(basic_point))) {
-      // No intersection so do not add
-      // TODO what to do here
-    }
-    // Intersection so add this lanelet to set of lanelets
-    
-  }
-
-  // 2. Add them to tracked geofences
-  // 3. Update the map TODO this implies value in using carma_wm 
-  // 4. Publish update message 
+  // TODO Add implementation for adding a geofence
+  // TODO log something here
 };
 
 void WMBroadcaster::removeGeofence(const Geofence& gf){
   std::lock_guard<std::mutex> guard(map_mutex_);
+  // TODO Add implementation for removing a geofence
+  // TODO log something here
 };
 
 }  // namespace carma_wm_ctrl

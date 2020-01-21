@@ -19,18 +19,14 @@
 
 namespace carma_wm_ctrl
 {
+  // TODO class comment
 class Geofence
 {
   public: 
-  uint32_t id;
+  uint32_t id; // Unique id of this geofence. TODO use uuid
 
-  // TODO Add to from msg functions
-  std::vector<lanelet::BasicPoint3d> centerline;
+  GeofenceSchedule schedule; // The schedule this geofence operates with
 
-  GeofenceSchedule schedule;
-
-  //// Attributes that define this geofence regulatory application
-  // NOTE: Currently this only has a max_speed field, but the full implementation should include additional fields
-  double max_speed = 0;
+  //// TODO Add attributes provided by geofences
 };
 }

@@ -17,7 +17,7 @@ namespace traffic_rules {
 //! Class for inferring traffic rules for lanelets and areas
 class CarmaUSTrafficRules : public TrafficRules { 
  public:
-
+ 
   virtual ~CarmaUSTrafficRules() {};
 
   bool canPass(const ConstLanelet& lanelet) const override;

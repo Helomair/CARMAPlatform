@@ -51,6 +51,7 @@ DigitalSpeedLimit::DigitalSpeedLimit(Id id, Velocity speed_limit, LineString3d s
   , speed_limit_(speed_limit)
   , participants_(participants.begin(), participants.end())
 {
+
   parameters().insert({ lanelet::RoleNameString::RefLine, { start_line } });
   parameters().insert({ lanelet::RoleNameString::CancelLine, { end_line } });
 }

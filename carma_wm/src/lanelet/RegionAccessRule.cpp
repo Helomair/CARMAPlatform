@@ -28,6 +28,9 @@ RegionAccessRule::RegionAccessRule(Id id, Lanelets lanelets, Areas areas, std::v
   : RegulatoryElement{ std::make_shared<lanelet::RegulatoryElementData>(id) }
   , participants_(participants.begin(), participants.end())
 {
+  //attributes()[AttributeName::Type] = AttributeValueString::RegulatoryElement;
+  //attributes()[AttributeName::Subtype] = RuleName;
+
   auto refers_list = parameters()[lanelet::RoleNameString::Refers];
 
   refers_list.insert(refers_list.end(), lanelets.begin(), lanelets.end());

@@ -27,6 +27,8 @@
 #include "ros/ros.h"
 #include <carma_wm_ctrl/GeofenceScheduler.h>
 
+#include "MapConformer.h"
+
 namespace carma_wm_ctrl  // TODO should this be carma_wm or carma_wm_ctrl?
 {
 

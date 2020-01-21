@@ -232,5 +232,13 @@ bool CarmaUSTrafficRules::hasDynamicRules(const ConstLanelet& lanelet) const
   return true;  // All regulations are considered dynamic in CARMA
 }
 
+
+/**
+ * TODO incorporate registration into this class
+ * RegisterTrafficRules<GermanVehicle> gvRules(Locations::Germany, Participants::Vehicle);
+RegisterTrafficRules<GermanPedestrian> gpRules(Locations::Germany, Participants::Pedestrian);
+RegisterTrafficRules<GermanBicycle> gbRules(Locations::Germany, Participants::Bicycle);
+*/
+
 }  // namespace traffic_rules
 }  // namespace lanelet

@@ -53,6 +53,8 @@ include_directories(
 add_library(${PROJECT_NAME}
   src/WMBroadcaster.cpp
   src/WMBroadcasterNode.cpp
+  src/MapConformer.cpp
+  src/GeofenceSchedule.cpp
 )
 
 ## Add cmake target dependencies of the library

@@ -68,7 +68,7 @@ public:
    * @return True if the bound can be crossed from the specified direction or if none of the controlLines match the provided bound
    */ 
   static bool boundPassable(const ConstLineString3d& bound, const std::vector<std::shared_ptr<const PassingControlLine>>& controlLines, bool fromLeft, const std::string& participant);
-protected:
+
   // TODO some work might be required to make this loadable from a file
   /**
    * @brief Constructor takes in an Id and list of contigious line strings that form this PassingControlLine as well as
@@ -85,7 +85,8 @@ protected:
    */
   PassingControlLine(Id id, LineStrings3d controlLine, std::vector<std::string> left_participants,
                      std::vector<std::string> right_participants);
-
+                     
+protected:
   // the following lines are required so that lanelet2 can create this object when loading a map with this regulatory
   // element
   friend class RegisterRegulatoryElement<PassingControlLine>;

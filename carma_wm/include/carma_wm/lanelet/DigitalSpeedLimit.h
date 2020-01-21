@@ -74,7 +74,6 @@ public:
    */
   bool appliesTo(const std::string& participant) const;
 
-protected:
   // TODO some work might be required to make this loadable from a file
   /**
    * @brief Constructor creates a speed limit based on the provided velocity, start, end lines, and the affected
@@ -89,6 +88,7 @@ protected:
   DigitalSpeedLimit(Id id, Velocity speed_limit, LineString3d start_line, LineString3d end_line,
                     std::vector<std::string> participants);
 
+protected:
   // the following lines are required so that lanelet2 can create this object when loading a map with this regulatory
   // element
   friend class RegisterRegulatoryElement<DigitalSpeedLimit>;

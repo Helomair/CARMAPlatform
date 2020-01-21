@@ -45,7 +45,6 @@ public:
    */
   bool accessable(const std::string& participant) const;
 
-protected:
   // TODO some work might be required to make this loadable from a file
 
   /**
@@ -57,6 +56,8 @@ protected:
    * @param participants The participants which can access the provided lanelets and areas
    */
   RegionAccessRule(Id id, Lanelets lanelets, Areas areas, std::vector<std::string> participants);
+
+protected:
 
   // the following lines are required so that lanelet2 can create this object when loading a map with this regulatory
   // element
