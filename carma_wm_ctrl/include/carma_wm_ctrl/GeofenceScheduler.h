@@ -18,99 +18,88 @@
 #include <ros/time.h>
 #include <mutex>
 #include <memory>
+#include <unordered_map>
 #include "Geofence.h"
 #include "Timer.h"
 #include "TimerFactory.h"
 
 namespace carma_wm_ctrl
 {
-using std::placeholders::_1;
+/**
+ * @brief A GeofenceScheduler is responsable for notifying the user when a geofence is active or inactive according to
+ * its schedule
+ */
 class GeofenceScheduler
 {
   using TimerPtr = std::unique_ptr<Timer>;
 
   std::mutex mutex_;
   std::unique_ptr<TimerFactory> timerFactory_;
-  std::unordered_map<uint32_t, std::pair<TimerPtr, bool>> timers;
+  std::unordered_map<uint32_t, std::pair<TimerPtr, bool>> timers;  // Pairing of timers with their Id and valid status
   std::unique_ptr<Timer> deletion_timer_;
   std::function<void(const Geofence&)> active_callback_;
   std::function<void(const Geofence&)> inactive_callback_;
-  uint32_t next_id_ = 0;
+  uint32_t next_id_ = 0;  // Timer id counter
 
-  public:
+public:
+  /**
+   * @brief Constructor which takes in a TimerFactory. Timers from this factory will be used to generate the triggers
+   * for goefence activity.
+   *
+   * @param timerFactory A pointer to a TimerFactory which can be used to generate timers for geofence triggers.
+   */
+  GeofenceScheduler(std::unique_ptr<TimerFactory> timerFactory);
 
-  GeofenceScheduler(std::unique_ptr<TimerFactory> timerFactory) : timerFactory_(std::move(timerFactory))
-  {
-    // Create repeating loop to clear geofence timers which are no longer needed
-    deletion_timer_ =
-        timerFactory_->buildTimer(nextId(), ros::Duration(1), std::bind(&GeofenceScheduler::clearTimers, this));
-  }
+  /**
+   * @brief Add a geofence to the scheduler. This will cause it to trigger an event when it becomes active or goes
+   * inactive according to its schedule
+   *
+   * @param geofence The geofence to be added
+   */
+  void addGeofence(Geofence geofence);
 
-  uint32_t nextId()
-  {
-    next_id_++;
-    return next_id_;
-  }
+  /**
+   * @brief The callback which is triggered when a geofence becomes active
+   *        This will call the user set active_callback set from the onGeofenceActive function
+   *
+   * @param event The record of the timer event causing this to trigger
+   * @param gf The geofence which is being activated
+   * @param timer_id The id of the timer which caused this callback to occur
+   */
+  void startGeofenceCallback(const ros::TimerEvent& event, const Geofence& gf, const int32_t timer_id);
+  /**
+   * @brief The callback which is triggered when a geofence becomes in-active
+   *        This will call the user set inactive_callback set from the onGeofenceInactive function
+   *
+   * @param event The record of the timer event causing this to trigger
+   * @param gf The geofence which is being un-activated
+   * @param timer_id The id of the timer which caused this callback to occur
+   */
+  void endGeofenceCallback(const ros::TimerEvent& event, const Geofence& gf, const int32_t timer_id);
+  /**
+   * @brief Method which allows the user to set a callback which will be triggered when a geofence becomes active
+   *
+   * @param active_callback The callback which will be triggered
+   */
+  void onGeofenceActive(std::function<void(const Geofence&)> active_callback);
+  /**
+   * @brief Method which allows the user to set a callback which will be triggered when a geofence becomes in-active
+   *
+   * @param inactive_callback The callback which will be triggered
+   */
+  void onGeofenceInactive(std::function<void(const Geofence&)> inactive_callback);
 
-  void clearTimers()
-  {
-    std::lock_guard<std::mutex> guard(mutex_);
-    for (const auto& key_val_pair : timers)
-    {
-      if (key_val_pair.second.second)
-      {
-        // This timer should be erased
-        timers.erase(key_val_pair.first);  // TODO ensure this is a safe in loop deletion
-      }
-    }
-  }
+  /**
+   * @brief Clears the expired timers from the memory of this scheduler
+   */
+  void clearTimers();
 
-  void addGeofence(Geofence geofence)
-  {
-    std::lock_guard<std::mutex> guard(mutex_);
-    // Create timer for next start time
-    ros::Time startTime = geofence.schedule.getNextInterval(ros::Time::now());
-    // TODO check startTime is valid
-    int32_t timer_id = nextId();
-    TimerPtr timer = timerFactory_->buildTimer(
-        timer_id, startTime - ros::Time::now(),
-        std::bind(&GeofenceScheduler::startGeofenceCallback, this, _1, geofence, timer_id), true, true);
-    timers[timer->getId()] = std::make_pair(std::move(timer), false);  // Add start timer to map by Id
-  }
-
-  void startGeofenceCallback(const ros::TimerEvent& event, const Geofence& gf, const int32_t timer_id)
-  {
-    std::lock_guard<std::mutex> guard(mutex_);
-
-    active_callback_(gf);
-    ros::Time endTime = gf.schedule.getNextInterval(ros::Time::now());  // TODO there might be some challenges with this
-                                                                        // call and small intervals
-    int32_t ending_timer_id = nextId();
-    TimerPtr timer = timerFactory_->buildTimer(
-        ending_timer_id, endTime - ros::Time::now(),
-        std::bind(&GeofenceScheduler::endGeofenceCallback, this, _1, gf, ending_timer_id), true, true);
-    timers[timer->getId()] = std::make_pair(std::move(timer), false);  // Add end timer to map by Id
-
-    timers[timer_id].second = true;  // Mark timer for deletion
-  }
-
-  void endGeofenceCallback(const ros::TimerEvent& event, const Geofence& gf, const int32_t timer_id)
-  {
-    std::lock_guard<std::mutex> guard(mutex_);
-    inactive_callback_(gf);
-    timers[timer_id].second = true;  // Mark timer for deletion
-  }
-
-  void onGeofenceActive(std::function<void(const Geofence&)> active_callback)
-  {
-    std::lock_guard<std::mutex> guard(mutex_);
-    active_callback_ = active_callback;
-  }
-
-  void onGeofenceInactive(std::function<void(const Geofence&)> inactive_callback)
-  {
-    std::lock_guard<std::mutex> guard(mutex_);
-    inactive_callback_ = inactive_callback;
-  }
+private:
+  /**
+   * @brief Generates the next id to be used for a timer
+   *
+   * @return The next available timer id
+   */
+  uint32_t nextId();
 };
 }  // namespace carma_wm_ctrl

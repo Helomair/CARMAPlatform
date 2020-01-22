@@ -55,6 +55,9 @@ add_library(${PROJECT_NAME}
   src/WMBroadcasterNode.cpp
   src/MapConformer.cpp
   src/GeofenceSchedule.cpp
+  src/GeofenceScheduler.cpp
+  src/ROSTimer.cpp
+  src/ROSTimerFactory.cpp
 )
 
 ## Add cmake target dependencies of the library

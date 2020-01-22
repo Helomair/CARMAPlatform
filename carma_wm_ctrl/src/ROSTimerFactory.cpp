@@ -1,4 +1,3 @@
-#pragma once
 /*
  * Copyright (C) 2020 LEIDOS.
  *
@@ -14,25 +13,18 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-#include <ros/time.h>
-#include <ros/timer.h>
-#include "TimerFactory.h"
-#include "Timer.h"
-#include "ROSTimer.h"
+#include <carma_wm_ctrl/ROSTimerFactory.h>
 
 namespace carma_wm_ctrl
 {
-class ROSTimerFactory : public TimerFactory
+ROSTimerFactory::~ROSTimerFactory(){};
+std::unique_ptr<Timer> ROSTimerFactory::buildTimer(uint32_t id, ros::Duration duration,
+                                                   std::function<void(const ros::TimerEvent&)> callback,
+                                                   bool oneshot, bool autostart)
 {
-public:
-  /**
-   * @brief Destructor
-   */ 
-  ~ROSTimerFactory();
-
-  //// Overrides
-  std::unique_ptr<Timer> buildTimer(uint32_t id, ros::Duration duration,
-                                    std::function<void(const ros::TimerEvent&)> callback, bool oneshot = false,
-                                    bool autostart = true) override;
-};
+  std::unique_ptr<Timer> timer_ptr = std::make_unique<ROSTimer>();
+  timer_ptr->initializeTimer(duration, callback, oneshot, autostart);
+  timer_ptr->setId(id);
+  return timer_ptr;
+}
 }  // namespace carma_wm_ctrl

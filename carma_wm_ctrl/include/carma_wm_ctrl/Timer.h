@@ -19,22 +19,61 @@
 
 namespace carma_wm_ctrl
 {
+/**
+ * @brief A timer class interface which will trigger the provided callback after the requested duration
+ */
 class Timer
 {
-  public: 
-    virtual ~Timer(){};
+protected:
+  uint32_t id_ = 0;
 
-    virtual void initializeTimer(ros::Duration duration, std::function<void(const ros::TimerEvent&)> callback,
-                                bool oneshot = false, bool autostart = true) = 0;
+public:
+  /**
+   * @brief Destructor
+   */
+  virtual ~Timer(){};
 
-    virtual void start() = 0;
+  /**
+   * @brief Initialize a timer to trigger the provided callback after the provided duration
+   *
+   * @param duration The duration the timer will wait for before a callback is triggered
+   * @param callback The callback to trigger after duration has elapsed
+   * @param oneshot If true the timer will only trigger one. If false it will trigger repeatedly with duration length
+   * increments
+   * @param autostart If true the timer will immediately start after this function is called. Otherwise the start()
+   * function must be called
+   */
+  virtual void initializeTimer(ros::Duration duration, std::function<void(const ros::TimerEvent&)> callback,
+                               bool oneshot = false, bool autostart = true) = 0;
 
-    virtual void stop() = 0;
+  /**
+   * @brief Start the timer coutdown
+   */
+  virtual void start() = 0;
 
-    virtual uint32_t getId() = 0;
+  /**
+   * @brief Stop the timer coutdown
+   */
+  virtual void stop() = 0;
 
-    virtual void setId(uint32_t id) = 0;
+  /**
+   * @brief Get the timer id. User must ensure this is unique
+   *
+   * @return The id of this timer
+   */
+  virtual uint32_t getId()
+  {
+    return id_;
+  }
 
-    virtual bool callbacksQueued() = 0;
+  /**
+   * @brief Set the id of this timer
+   *
+   * @param id The id to set
+   */
+  virtual void setId(uint32_t id)
+  {
+    id_ = id;
+  }
 };
 }  // namespace carma_wm_ctrl

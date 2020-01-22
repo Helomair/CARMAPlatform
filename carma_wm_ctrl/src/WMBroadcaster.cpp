@@ -38,6 +38,8 @@
 namespace carma_wm_ctrl  // TODO should this be carma_wm or carma_wm_ctrl?
 {
 
+  using std::placeholders::_1;
+
   // NEW PLAN 1/17/2020
   // 1. Clean up existing header only classes. 
   //    -- Completed 
@@ -51,7 +53,7 @@ namespace carma_wm_ctrl  // TODO should this be carma_wm or carma_wm_ctrl?
 
 WMBroadcaster::WMBroadcaster(PublishMapCallback map_pub, std::unique_ptr<TimerFactory> timer_factory) 
   : map_pub_(map_pub), scheduler_(std::move(timer_factory)) {  
-  
+
   scheduler_.onGeofenceActive(std::bind(&WMBroadcaster::addGeofence, this, _1));
   scheduler_.onGeofenceInactive(std::bind(&WMBroadcaster::removeGeofence, this, _1));
 

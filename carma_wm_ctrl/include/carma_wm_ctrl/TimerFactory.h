@@ -20,12 +20,31 @@
 
 namespace carma_wm_ctrl
 {
+/**
+ * @brief TimerFactory provides an interface for factory classes that can build Timer objects.
+ */
 class TimerFactory
 {
-  public:
-    virtual ~TimerFactory(){};
+public:
+  /**
+   * @brief Destructor
+   */
+  virtual ~TimerFactory(){};
 
-    virtual std::unique_ptr<Timer> buildTimer(uint32_t id, ros::Duration duration, std::function<void(const ros::TimerEvent&)> callback,
-                            bool oneshot = false, bool autostart = true) = 0;
+  /**
+   * @brief Function to build a timer which will wait the provided duration before triggering the provided callback
+   *
+   * @param duration The duration the timer will wait for before a callback is triggered
+   * @param callback The callback to trigger after duration has elapsed
+   * @param oneshot If true the timer will only trigger one. If false it will trigger repeatedly with duration length
+   * increments
+   * @param autostart If true the timer will immediately start after this function is called. Otherwise the start()
+   * function must be called
+   *
+   * @return A unique pointer to a Timer object which was intialized using the provided parameters
+   */
+  virtual std::unique_ptr<Timer> buildTimer(uint32_t id, ros::Duration duration,
+                                            std::function<void(const ros::TimerEvent&)> callback, bool oneshot = false,
+                                            bool autostart = true) = 0;
 };
 }  // namespace carma_wm_ctrl
