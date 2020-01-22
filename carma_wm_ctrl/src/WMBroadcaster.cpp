@@ -46,7 +46,8 @@ namespace carma_wm_ctrl  // TODO should this be carma_wm or carma_wm_ctrl?
   // 2. Develop logic for generating regulatory elements from existing map data
   //    -- Completed
   // 3. Develop place holder functions for geofence data
-  //    -- HERE
+  //    -- Completed
+  // 3.5. Implement Node
   // 4. Develop unit tests for this package
   // 5. Update carma_wm to use new traffic rules
   // 6. Clean up TODOs
@@ -61,33 +62,47 @@ WMBroadcaster::WMBroadcaster(PublishMapCallback map_pub, std::unique_ptr<TimerFa
 
 void WMBroadcaster::baseMapCallback(const autoware_lanelet2_msgs::MapBinConstPtr& map_msg) {
   std::lock_guard<std::mutex> guard(map_mutex_);
+  
+  static bool firstCall = true;
+  firstCall = false;
+  // This function should generally only ever be called one time so log a warning if it occurs multiple times
+  if (firstCall) {
+    ROS_INFO("WMBroadcaster::baseMapCallback called for first time with new map message");
+  } else {
+    ROS_WARN("WMBroadcaster::baseMapCallback called multiple times in the same node");
+  }
 
   lanelet::LaneletMapPtr new_map(new lanelet::LaneletMap);
 
   lanelet::utils::conversion::fromBinMsg(*map_msg, new_map);
 
-  base_map_ = new_map;
-  lanelet::MapConformer::ensureCompliance(base_map_);
+  base_map_ = new_map; // Store map
+  
+  lanelet::MapConformer::ensureCompliance(base_map_); // Update map to ensure it complies with expectations
 
-  // TODO warning if this is called multiple times?
+  // Publish map
+  autoware_lanelet2_msgs::MapBin compliant_map_msg;
+  lanelet::utils::conversion::toBinMsg(base_map_, &compliant_map_msg);
+  map_pub_(compliant_map_msg);
 };
 
-void WMBroadcaster::geofenceCallback(/*TODO*/){
+void WMBroadcaster::geofenceCallback(/*TODO add message type here once defined*/){
   std::lock_guard<std::mutex> guard(map_mutex_);
   Geofence gf;
   scheduler_.addGeofence(gf); // Add the geofence to the schedule
+  ROS_INFO_STREAM("New geofence message received by WMBroadcaster with id" << gf.id_);
 };
 
 void WMBroadcaster::addGeofence(const Geofence& gf){
   std::lock_guard<std::mutex> guard(map_mutex_);
+  ROS_INFO_STREAM("Adding active geofence to the map with geofence id: " << gf.id_);
   // TODO Add implementation for adding a geofence
-  // TODO log something here
 };
 
 void WMBroadcaster::removeGeofence(const Geofence& gf){
   std::lock_guard<std::mutex> guard(map_mutex_);
+  ROS_INFO_STREAM("Removing inactive geofence to the map with geofence id: " << gf.id_);
   // TODO Add implementation for removing a geofence
-  // TODO log something here
 };
 
 }  // namespace carma_wm_ctrl

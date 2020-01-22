@@ -19,11 +19,15 @@
 
 namespace carma_wm_ctrl
 {
-  // TODO class comment
+/**
+ * @brief An object representing a geofence use for communications with CARMA Cloud
+ * 
+ * TODO: This is currently a place holder class which needs to be updated based on the final geofence specification
+ */ 
 class Geofence
 {
   public: 
-  uint32_t id; // Unique id of this geofence. TODO use uuid
+  uint32_t id_; // Unique id of this geofence. TODO use id matching geofence standard
 
   GeofenceSchedule schedule; // The schedule this geofence operates with
 

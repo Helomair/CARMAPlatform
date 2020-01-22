@@ -52,7 +52,6 @@ include_directories(
 ## Declare C++ library
 add_library(${PROJECT_NAME}
   src/WMBroadcaster.cpp
-  src/WMBroadcasterNode.cpp
   src/MapConformer.cpp
   src/GeofenceSchedule.cpp
   src/GeofenceScheduler.cpp
@@ -67,6 +66,17 @@ add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EX
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )
+
+## Create C++ Node Executable
+add_executable(${PROJECT_NAME}_node src/main.cpp src/WMBroadcasterNode.cpp)
+
+target_link_libraries(${PROJECT_NAME}_node
+  ${PROJECT_NAME}
+  carma_utils
+  ${catkin_LIBRARIES}
+)
+
+add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
 
 #############
 ## Install ##
