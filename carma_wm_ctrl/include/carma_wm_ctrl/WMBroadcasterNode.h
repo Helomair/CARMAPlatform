@@ -19,6 +19,7 @@
 #include <functional>
 #include <autoware_lanelet2_msgs/MapBin.h>
 #include <carma_utils/CARMAUtils.h>
+#include <carma_wm_ctrl/WMBroadcaster.h>
 #include <ros/ros.h>
 
 namespace carma_wm_ctrl  // TODO should this be carma_wm or carma_wm_ctrl?
