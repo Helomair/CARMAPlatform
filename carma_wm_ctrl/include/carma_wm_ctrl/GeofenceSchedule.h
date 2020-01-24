@@ -31,17 +31,39 @@ class GeofenceSchedule
   ros::Duration control_duration;
   ros::Duration control_interval;
 
-  std::unordered_set<boost::gregorian::greg_weekday, std::hash<int>> week_day_set;  // TODO NOTE: If no day of week is
+  std::unordered_set<boost::gregorian::greg_weekday, std::hash<int>> week_day_set;  // NOTE: If no day of week is
                                                                                     // included then all should be
   public: 
 
+  /**
+   * @brief Returns true if the schedule has expired by the provided time
+   * 
+   * @param time UTC time to compare
+   * 
+   * @return True if time > schedule_end
+   */ 
   bool scheduleExpired(const ros::Time& time = ros::Time::now()) const;
 
+  /**
+   * @brief Returns true if the schedule has started by the provided time
+   * 
+   * @param time UTC time to compare
+   * 
+   * @return True if time > schedule_start
+   */ 
   bool scheduleStarted(const ros::Time& time = ros::Time::now()) const;
 
   // returns ros::Time(0) when the schedule is expired or the next interval will be on a different day of the week
   // Argument provided as absolute time (since 1970)
-  ros::Time getNextInterval(ros::Time time) const;
-  // TODO the UTC offset is provided in the geofence spec but for now we will ignore and assume all times are UTC
+  /**
+   * @brief Returns the start time of the next active interval defined by this schedule
+   * 
+   * @param time UTC time to compare
+   * 
+   * @return Return the time of the next scheduled interval within the current day. Returns ros::Time(0) when the schedule is expired or the next interval will be on a different day of the week or after schedule end
+   * 
+   * TODO the UTC offset is provided in the geofence spec but for now we will ignore and assume all times are UTC
+   */ 
+  ros::Time getNextInterval(const ros::Time& time) const;
 };
 }

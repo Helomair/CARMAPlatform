@@ -27,12 +27,12 @@ bool GeofenceSchedule::scheduleExpired(const ros::Time& time) const
 
 bool GeofenceSchedule::scheduleStarted(const ros::Time& time) const
 {
-  return schedule_start < time;
+  return schedule_start <= time;
 }
 
 // returns ros::Time(0) when the schedule is expired or the next interval will be on a different day of the week
 // Argument provided as absolute time (since 1970)
-ros::Time GeofenceSchedule::getNextInterval(ros::Time time) const
+ros::Time GeofenceSchedule::getNextInterval(const ros::Time& time) const
 {
   if (scheduleExpired(time))
   {
