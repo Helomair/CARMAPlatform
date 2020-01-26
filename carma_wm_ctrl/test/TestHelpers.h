@@ -27,6 +27,8 @@
  */
 namespace carma_wm
 {
+
+  
   
 inline lanelet::Point3d getPoint(double x, double y, double z)
 {
