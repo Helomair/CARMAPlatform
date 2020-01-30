@@ -41,6 +41,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_filters
   novatel_gps_msgs
   carma_utils
+  lanelet2_extension
 )
 
 ## System dependencies are found with CMake's conventions
@@ -135,7 +136,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES gnss_to_map_convertor
-  CATKIN_DEPENDS geometry_msgs roscpp rospy std_msgs tf2_msgs wgs84_utils message_filters novatel_gps_msgs carma_utils tf2_geometry_msgs
+  CATKIN_DEPENDS geometry_msgs roscpp rospy std_msgs tf2_msgs wgs84_utils message_filters novatel_gps_msgs carma_utils tf2_geometry_msgs lanelet2_extension
 #  DEPENDS system_lib
 )
 

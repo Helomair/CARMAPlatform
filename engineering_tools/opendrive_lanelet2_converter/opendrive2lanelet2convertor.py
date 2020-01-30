@@ -104,17 +104,19 @@ class Relation:
 # class used to convert opendrive map to lanelet2 map
 class Opendrive2Lanelet2Convertor:
     def __init__(self, fn):
+        self.mapParams = xml.Element('map_params')
         self.scenario, self.geoReference = self.open_drive_loader(fn)
         self.root = xml.Element('osm',{'generator': 'lanelet2','version': '0.6'})
         self.nodes = xml.Element('nodes')
         self.ways = xml.Element('ways')
         self.relations = xml.Element('relations')
-
+        
     def open_drive_loader(self, fn):
         fi = open(fn.format(os.path.dirname(os.path.realpath(__file__))), "r")
         tree = etree.parse(fi)
         root = tree.getroot()
         geoReference = root[0][0].text
+        self.mapParams.set("target_frame", geoReference)
         open_drive = parse_opendrive(root)
         road_network = Network()
         road_network.load_opendrive(open_drive)
@@ -126,7 +128,10 @@ class Opendrive2Lanelet2Convertor:
         return inProj(x,y,inverse=True)
 
     def write_xml_to_file(self,fn):
-                
+
+        # encode map_params data into the osm file.
+        self.root.append(self.mapParams)
+
         for child in self.nodes.getchildren():
             self.root.append(child)
 
