@@ -33,9 +33,9 @@ find_package(Eigen3 REQUIRED)
 ## Catkin export configuration
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES carma_wm
+  LIBRARIES ${PROJECT_NAME}
   CATKIN_DEPENDS ${PKG_CATKIN_DEPS}
-  DEPENDS Boost Eigen3
+  DEPENDS Boost EIGEN3
 )
 
 ###########
@@ -66,6 +66,8 @@ add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EX
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )
+
+message(INFO "LIBS: " ${catkin_LIBRARIES})
 
 ## Create C++ Node Executable
 add_executable(${PROJECT_NAME}_node 

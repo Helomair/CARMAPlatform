@@ -40,18 +40,6 @@ namespace carma_wm_ctrl  // TODO should this be carma_wm or carma_wm_ctrl?
 
   using std::placeholders::_1;
 
-  // NEW PLAN 1/17/2020
-  // 1. Clean up existing header only classes. 
-  //    -- Completed 
-  // 2. Develop logic for generating regulatory elements from existing map data
-  //    -- Completed
-  // 3. Develop place holder functions for geofence data
-  //    -- Completed
-  // 3.5. Implement Node
-  // 4. Develop unit tests for this package
-  // 5. Update carma_wm to use new traffic rules
-  // 6. Clean up TODOs
-
 WMBroadcaster::WMBroadcaster(PublishMapCallback map_pub, std::unique_ptr<TimerFactory> timer_factory) 
   : map_pub_(map_pub), scheduler_(std::move(timer_factory)) {  
 
