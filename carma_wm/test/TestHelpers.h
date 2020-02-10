@@ -18,6 +18,7 @@
 #include <gmock/gmock.h>
 #include <iostream>
 #include <../src/CARMAWorldModel.h>
+#include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_core/geometry/LineString.h>
 #include <lanelet2_traffic_rules/TrafficRulesFactory.h>
 #include <lanelet2_core/Attribute.h>
