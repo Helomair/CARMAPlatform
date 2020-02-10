@@ -15,9 +15,7 @@
  */
 
 #include <gmock/gmock.h>
-#include <iostream>
-
-#include "TestHelpers.h"
+#include <carma_wm_ctrl/GeofenceSchedule.h>
 
 using ::testing::_;
 using ::testing::A;
@@ -28,8 +26,9 @@ using ::testing::ReturnArg;
 
 namespace carma_wm_ctrl
 {
-TEST(Temp, Temp1)
+TEST(GeofenceScheduler, scheduleExpired)
 {
+  
+}
 
-}
-}
+}  // namespace carma_wm_ctrl

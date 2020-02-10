@@ -20,14 +20,33 @@
 
 namespace carma_wm_ctrl
 {
+GeofenceSchedule::GeofenceSchedule() {}
+
+GeofenceSchedule::GeofenceSchedule(ros::Time schedule_start,
+  ros::Time schedule_end,
+  ros::Duration control_start,
+  ros::Duration control_end,
+  ros::Duration control_duration,
+  ros::Duration control_interval,
+  DayOfTheWeekSet week_day_set)
+{
+  schedule_start_ = schedule_start;
+  schedule_end_ = schedule_end;
+  control_start_ = control_start,
+  control_end_ = control_end,
+  control_duration_ = control_duration;
+  control_interval_ = control_interval;
+  week_day_set_ = week_day_set;
+}
+
 bool GeofenceSchedule::scheduleExpired(const ros::Time& time) const
 {
-  return schedule_end < time;
+  return schedule_end_ < time;
 }
 
 bool GeofenceSchedule::scheduleStarted(const ros::Time& time) const
 {
-  return schedule_start <= time;
+  return schedule_start_ <= time;
 }
 
 // returns ros::Time(0) when the schedule is expired or the next interval will be on a different day of the week
@@ -42,32 +61,37 @@ ros::Time GeofenceSchedule::getNextInterval(const ros::Time& time) const
   boost::posix_time::ptime boost_time = time.toBoost();
   boost::gregorian::date date = boost_time.date();
 
-  if (week_day_set.find(date.day_of_week()) == week_day_set.end())
+  if (week_day_set_.find(date.day_of_week()) == week_day_set_.end())
   {
     return ros::Time(0);  // This geofence is not active on this day
   }
 
   auto time_of_day = boost_time.time_of_day();
 
-  // TODO
-  // If time of day is between control_start and control_end
-  boost::posix_time::ptime t(date, boost::posix_time::hours(0));  // Get absolute start time of the day
+  // Convert schedule into workable components
+  boost::posix_time::ptime ptime_start_of_day(date, boost::posix_time::hours(0));  // Get absolute start time of the day
 
   ros::Time ros_time_of_day = ros::Time::fromBoost(time_of_day);
-  ros::Time abs_day_start = ros::Time::fromBoost(t);
-  ros::Duration cur_start = control_start;
-  ros::Duration cur_end = control_end;
+  ros::Time abs_day_start = ros::Time::fromBoost(ptime_start_of_day);
+  ros::Duration cur_start = control_start_;
 
+  // Check if current time is after end of control
+  if (ros_time_of_day > ros::Time(control_end_.toSec())) {
+    // The requested time is after control end so there will not be another interval
+    return ros::Time(0);
+  }
+
+  // Iterate over the day to find the next control interval
   constexpr int num_sec_in_day = 86400;
   const ros::Duration full_day(num_sec_in_day);
-
+  
   while (cur_start < full_day && ros_time_of_day > ros::Time(cur_start.toSec()))
   {
-    cur_start += control_interval;
+    cur_start += control_interval_;
   }
 
   // check if the only next interval is after the schedule end or past the end of the day
-  if (abs_day_start + cur_start > schedule_end || cur_start > full_day)
+  if (abs_day_start + cur_start > schedule_end_ || cur_start > full_day || cur_start > control_end_)
   {
     return ros::Time(0);
   }

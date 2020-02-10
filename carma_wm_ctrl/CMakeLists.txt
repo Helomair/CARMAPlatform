@@ -107,7 +107,7 @@ install(DIRECTORY include/${PROJECT_NAME}/
 
 catkin_add_gmock(${PROJECT_NAME}-test
  test/TestMain.cpp
- test/TempTest.cpp
+ test/GeofenceScheduleTest.cpp
  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test # Add test directory as working directory for unit tests
 )
 
