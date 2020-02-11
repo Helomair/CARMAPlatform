@@ -36,13 +36,4 @@ void ROSTimer::stop()
   timer_.stop();
 }
 
-// TODO needed? To support simulation I need to be connected to /clock
-// To be connected to /clock the ros::Timer must be used
-// The geofence scheduler needs to build ros::Timer objects as needed
-// These can be worked with directly but only if created by a factory
-// To unit test I need to be able to build ros::Timers which means the factory would need to be able to build them which
-// I can't do. So I would need to interface both the factory and the timer lass
-
-// WIP Geofence class described according to "Geofences for Roadway Controls for CARMAcloud Version 1.0" November 18
-// 2019
 }  // namespace carma_wm_ctrl

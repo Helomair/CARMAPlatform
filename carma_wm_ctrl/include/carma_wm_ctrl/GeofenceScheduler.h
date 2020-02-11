@@ -35,7 +35,7 @@ class GeofenceScheduler
 
   std::mutex mutex_;
   std::unique_ptr<TimerFactory> timerFactory_;
-  std::unordered_map<uint32_t, std::pair<TimerPtr, bool>> timers;  // Pairing of timers with their Id and valid status
+  std::unordered_map<uint32_t, std::pair<TimerPtr, bool>> timers_;  // Pairing of timers with their Id and valid status
   std::unique_ptr<Timer> deletion_timer_;
   std::function<void(const Geofence&)> active_callback_;
   std::function<void(const Geofence&)> inactive_callback_;
@@ -58,24 +58,6 @@ public:
    */
   void addGeofence(Geofence geofence);
 
-  /**
-   * @brief The callback which is triggered when a geofence becomes active
-   *        This will call the user set active_callback set from the onGeofenceActive function
-   *
-   * @param event The record of the timer event causing this to trigger
-   * @param gf The geofence which is being activated
-   * @param timer_id The id of the timer which caused this callback to occur
-   */
-  void startGeofenceCallback(const ros::TimerEvent& event, const Geofence& gf, const int32_t timer_id);
-  /**
-   * @brief The callback which is triggered when a geofence becomes in-active
-   *        This will call the user set inactive_callback set from the onGeofenceInactive function
-   *
-   * @param event The record of the timer event causing this to trigger
-   * @param gf The geofence which is being un-activated
-   * @param timer_id The id of the timer which caused this callback to occur
-   */
-  void endGeofenceCallback(const ros::TimerEvent& event, const Geofence& gf, const int32_t timer_id);
   /**
    * @brief Method which allows the user to set a callback which will be triggered when a geofence becomes active
    *
@@ -101,5 +83,24 @@ private:
    * @return The next available timer id
    */
   uint32_t nextId();
+  
+  /**
+   * @brief The callback which is triggered when a geofence becomes active
+   *        This will call the user set active_callback set from the onGeofenceActive function
+   *
+   * @param event The record of the timer event causing this to trigger
+   * @param gf The geofence which is being activated
+   * @param timer_id The id of the timer which caused this callback to occur
+   */
+  void startGeofenceCallback(const ros::TimerEvent& event, const Geofence& gf, const int32_t timer_id);
+  /**
+   * @brief The callback which is triggered when a geofence becomes in-active
+   *        This will call the user set inactive_callback set from the onGeofenceInactive function
+   *
+   * @param event The record of the timer event causing this to trigger
+   * @param gf The geofence which is being un-activated
+   * @param timer_id The id of the timer which caused this callback to occur
+   */
+  void endGeofenceCallback(const ros::TimerEvent& event, const Geofence& gf, const int32_t timer_id);
 };
 }  // namespace carma_wm_ctrl
