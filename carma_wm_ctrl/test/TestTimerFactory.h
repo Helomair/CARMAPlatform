@@ -19,9 +19,6 @@
 #include <carma_wm_ctrl/Timer.h>
 #include "TestTimer.h"
 
-// TODO here
-// It is not entirely clear how to access the timers after creation in order to trigger them. We need some kind of global clock or trigger
-// Before getting too far into it try seeing if the rostimers work anyway despite the node handle. 
 namespace carma_wm_ctrl
 {
   // Timer factory for unit testing
@@ -37,11 +34,9 @@ public:
                                     std::function<void(const ros::TimerEvent&)> callback, bool oneshot = false,
                                     bool autostart = true) override 
   {
-    std::cerr << "Start build"<<std::endl;
     std::unique_ptr<Timer> timer = std::make_unique<TestTimer>();
     timer->setId(id);
     timer->initializeTimer(duration, callback, oneshot, autostart);
-    std::cerr << "Done build"<<std::endl;
     return timer;
   }
 };

@@ -41,19 +41,20 @@ TEST(GeofenceScheduler, Constructor)
   GeofenceScheduler scheduler(std::make_unique<TestTimerFactory>()); // Create scheduler with test timers. Having this check helps verify that the timers do not crash on destruction
 }
 
-// This doesn't wait the right amount of time
+// Helper function which waits until the provided atomic matches the expected value or the timeout expires
 bool waitForEqOrTimeout(double timeout_s, uint32_t expected, std::atomic<uint32_t>& actual) {
     auto start = std::chrono::system_clock::now();
     std::chrono::duration<double,  std::ratio<1,1>> sec(timeout_s);
     auto elapsed_seconds = std::chrono::duration<double>(std::chrono::system_clock::now()-start);
 
     while (elapsed_seconds < sec) {
-      //std::cerr << " Expected:  " << expected << " Actual: " << actual << std::endl;
 
       if (actual.load() == expected){
         return true;
       }
       elapsed_seconds = std::chrono::system_clock::now()-start;
+      auto period = std::chrono::milliseconds(10);
+      std::this_thread::sleep_for (period);
     }
 
     return false;
@@ -69,7 +70,7 @@ TEST(GeofenceScheduler, addGeofence)
     ros::Time(1), // Schedule between 1 and 6
     ros::Time(8),
     ros::Duration(2), // Start's at 2
-    ros::Duration(6), // Ends at by 6
+    ros::Duration(5.5), // Ends at by 5.5
     ros::Duration(1), // Duration of 1 and interval of two so active durations are (2-3 and 4-5)
     ros::Duration(2) 
   );
@@ -84,13 +85,11 @@ TEST(GeofenceScheduler, addGeofence)
   scheduler.onGeofenceActive([&](const Geofence& gf) {
     active_call_count.store(active_call_count.load() + 1);
     last_active_gf.store(gf.id_);
-    std::cerr << "Active called for: " << gf.id_ << std::endl;
   });
 
   scheduler.onGeofenceInactive([&](const Geofence& gf) {
     inactive_call_count.store(inactive_call_count.load() + 1);
     last_inactive_gf.store(gf.id_);
-    std::cerr << "Inactive called for: " << gf.id_ << std::endl;
   });
 
   ASSERT_EQ(0, active_call_count.load());
@@ -109,25 +108,19 @@ TEST(GeofenceScheduler, addGeofence)
 
   ros::Time::setNow(ros::Time(2.1)); // Set current time
 
-  std::cerr << " Here 1" << std::endl;
-
-  ASSERT_TRUE(waitForEqOrTimeout(3.0, 1, last_active_gf));
+  ASSERT_TRUE(waitForEqOrTimeout(7.0, 1, last_active_gf));
   ASSERT_EQ(1, active_call_count.load());
   ASSERT_EQ(0, inactive_call_count.load());
   ASSERT_EQ(0, last_inactive_gf.load());
 
   ros::Time::setNow(ros::Time(3.1)); // Set current time
 
-  std::cerr << " Here 2" << std::endl;
-
-  ASSERT_TRUE(waitForEqOrTimeout(3.0, 1, last_inactive_gf));
+  ASSERT_TRUE(waitForEqOrTimeout(7.0, 1, last_inactive_gf));
   ASSERT_EQ(1, active_call_count.load());
   ASSERT_EQ(1, inactive_call_count.load());
   ASSERT_EQ(1, last_active_gf.load());
 
   ros::Time::setNow(ros::Time(3.5)); // Set current time
-
-  std::cerr << " Here 2" << std::endl;
 
   ASSERT_EQ(1, active_call_count.load());
   ASSERT_EQ(1, inactive_call_count.load());
@@ -136,18 +129,31 @@ TEST(GeofenceScheduler, addGeofence)
 
   ros::Time::setNow(ros::Time(4.2)); // Set current time
 
-  ASSERT_TRUE(waitForEqOrTimeout(3.0, 2, active_call_count));
+  ASSERT_TRUE(waitForEqOrTimeout(7.0, 2, active_call_count)); // TODO this seems to be having trouble. Not clear if related to timeout length or not
   ASSERT_EQ(1, inactive_call_count.load());
   ASSERT_EQ(1, last_active_gf.load());
 
   ros::Time::setNow(ros::Time(5.5)); // Set current time
 
-  ASSERT_TRUE(waitForEqOrTimeout(3.0, 2, inactive_call_count));
+  ASSERT_TRUE(waitForEqOrTimeout(7.0, 2, inactive_call_count));
   ASSERT_EQ(2, active_call_count.load());
   ASSERT_EQ(1, last_active_gf.load());
 
   ros::Time::setNow(ros::Time(9.5)); // Set current time
 
+  ASSERT_EQ(2, inactive_call_count.load());
+  ASSERT_EQ(2, active_call_count.load());
+  ASSERT_EQ(1, last_active_gf.load());
+  ASSERT_EQ(1, last_inactive_gf.load());
+
+  // Basic check that expired geofence is not added
+  Geofence gf2 = gf;
+  gf2.id_ = 2;
+  scheduler.addGeofence(gf2);
+
+  ros::Time::setNow(ros::Time(11.0)); // Set current time
+
+  waitForEqOrTimeout(3.0, 10, inactive_call_count); // Let some time pass just in case
   ASSERT_EQ(2, inactive_call_count.load());
   ASSERT_EQ(2, active_call_count.load());
   ASSERT_EQ(1, last_active_gf.load());

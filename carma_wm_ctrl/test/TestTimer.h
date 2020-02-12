@@ -23,7 +23,7 @@
 
 namespace carma_wm_ctrl
 {
-  // Test timer for unit testing by allowing user to trigger timing events
+  // Timer for unit testing which is implemented using ros::Time and std::thread instead of ros::Timer which requires a node handle to build
 class TestTimer : public Timer
 {
   public:

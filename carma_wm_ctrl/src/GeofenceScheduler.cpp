@@ -45,7 +45,6 @@ void GeofenceScheduler::clearTimers()
 		if (it->second.second) {
 			// erase() function returns the iterator of the next
 			// to last deleted element.
-      std::cerr << "Removed timer" << it->second.first->getId() << std::endl;
 			it = timers_.erase(it);
 		} else {
 			it++;
@@ -54,49 +53,45 @@ void GeofenceScheduler::clearTimers()
 }
 
 void GeofenceScheduler::addGeofence(Geofence geofence)
-{std::cerr << "Enter: 0" << std::endl;
+{
   std::lock_guard<std::mutex> guard(mutex_);
+
+  ROS_INFO_STREAM("Attempting to add Geofence with Id: " << geofence.id_);
+
   // Create timer for next start time
   auto interval_info = geofence.schedule.getNextInterval(ros::Time::now());
   ros::Time startTime = interval_info.second;
   if (!interval_info.first && startTime == ros::Time(0)) {
     ROS_WARN_STREAM("Failed to add geofence as its schedule did not contain an active or upcoming control period. GF Id: " << geofence.id_);
+    return;
   }
   // If this geofence is currently active set the start time to now
   if (interval_info.first) {
     startTime = ros::Time::now();
   }
 
-  std::cerr << "StartTime: " << startTime.toSec() << std::endl;
-  std::cerr << "ROS Time: " << ros::Time::now().toSec() << std::endl;
-  std::cerr << "Duration: " << (startTime.toSec() - ros::Time::now().toSec()) << std::endl;
-  // TODO check startTime is valid
   int32_t timer_id = nextId();
 
+  // Build timer to trigger when this geofence becomes active
   TimerPtr timer = timerFactory_->buildTimer(
       timer_id, startTime - ros::Time::now(),
       std::bind(&GeofenceScheduler::startGeofenceCallback, this, _1, geofence, timer_id), true, true);
 
-  auto id = timer->getId();
-
-std::cerr << "Access --" << std::endl;
-
   timers_[timer_id] = std::make_pair(std::move(timer), false); // Add start timer to map by Id
 
-  std::cerr << "Exit 1: " << std::endl;
 }
 
 void GeofenceScheduler::startGeofenceCallback(const ros::TimerEvent& event, const Geofence& gf, const int32_t timer_id)
 {
-  std::cerr << "Enter 2: " << std::endl;
   std::lock_guard<std::mutex> guard(mutex_);
 
   ros::Time endTime = ros::Time::now() + gf.schedule.control_duration_;
-    std::cerr << "EndTime: " << endTime.toSec() << std::endl;
-  std::cerr << "ROS Time: " << ros::Time::now().toSec() << std::endl;
-  std::cerr << "Duration: " << (endTime.toSec() - ros::Time::now().toSec()) << std::endl;
+
+  ROS_INFO_STREAM("Activating Geofence with Id: " << gf.id_);
+
   active_callback_(gf);
 
+  // Build timer to trigger when this geofence becomes inactive
   int32_t ending_timer_id = nextId();
   TimerPtr timer = timerFactory_->buildTimer(
       ending_timer_id, endTime - ros::Time::now(),
@@ -104,16 +99,16 @@ void GeofenceScheduler::startGeofenceCallback(const ros::TimerEvent& event, cons
   timers_[ending_timer_id] = std::make_pair(std::move(timer), false);  // Add end timer to map by Id
 
   timers_[timer_id].second = true;  // Mark start timer for deletion
-  std::cerr << "Exit 3: " << " Time: " << ros::Time::now() << std::endl;
 }
 
 void GeofenceScheduler::endGeofenceCallback(const ros::TimerEvent& event, const Geofence& gf, const int32_t timer_id)
 {
-  std::cerr << "Enter 4: "<< std::endl;
   std::lock_guard<std::mutex> guard(mutex_);
+
+  ROS_INFO_STREAM("Deactivating Geofence with Id: " << gf.id_);
+
   inactive_callback_(gf);
   timers_[timer_id].second = true;  // Mark timer for deletion
-  // TODO we need to update this such that it will create the start timer for the next geofence active period
 
   // Determine if a new timer is needed for this geofence
   auto interval_info = gf.schedule.getNextInterval(ros::Time::now());
@@ -130,33 +125,26 @@ void GeofenceScheduler::endGeofenceCallback(const ros::TimerEvent& event, const 
     return;
   }
 
+  // Build timer to trigger when this geofence becomes active
   int32_t start_timer_id = nextId();
 
   TimerPtr timer = timerFactory_->buildTimer(
       start_timer_id, startTime - ros::Time::now(),
       std::bind(&GeofenceScheduler::startGeofenceCallback, this, _1, gf, start_timer_id), true, true);
 
-  auto id = timer->getId();
-
   timers_[start_timer_id] = std::make_pair(std::move(timer), false); // Add start timer to map by Id
 
-
-  std::cerr << "Exit 5: " << std::endl;
 }
 
 void GeofenceScheduler::onGeofenceActive(std::function<void(const Geofence&)> active_callback)
 {
-  std::cerr << "Enter 8: " << std::endl;
   std::lock_guard<std::mutex> guard(mutex_);
   active_callback_ = active_callback;
-  std::cerr << "Exit 9: " << std::endl;
 }
 
 void GeofenceScheduler::onGeofenceInactive(std::function<void(const Geofence&)> inactive_callback)
 {
-  std::cerr << "Enter 10: " << std::endl;
   std::lock_guard<std::mutex> guard(mutex_);
   inactive_callback_ = inactive_callback;
-  std::cerr << "Exit 11: " << std::endl;
 }
 }  // namespace carma_wm_ctrl

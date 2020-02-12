@@ -43,9 +43,7 @@ namespace carma_wm_ctrl
   void TestTimer::initializeTimer(ros::Duration duration, std::function<void(const ros::TimerEvent&)> callback,
                        bool oneshot, bool autostart)
   {
-    std::cerr << "H" << std::endl;
     const std::lock_guard<std::mutex> lock(timer_mutex_);
-    std::cerr << "I" << std::endl;
     if (running_.load()) {
       throw std::invalid_argument("Tried to intialize an already running timer");
     }
@@ -60,7 +58,6 @@ namespace carma_wm_ctrl
 
   void TestTimer::startImpl() {
 
-    std::cerr << "Starting timer: " << id_ << std::endl;
     if (running_.load()) {
       std::cerr << "Duplicate call to start on running thread" << std::endl;
       return;
@@ -70,48 +67,35 @@ namespace carma_wm_ctrl
     running_.store(true);
 
     timer_thread_ = std::thread([this]() { 
-      std::cerr << "E " << id_ << std::endl;
       
       while(running_.load()) {
         const std::lock_guard<std::mutex> lock_timer(timer_mutex_);
-        //std::cerr << "F " << id_ << std::endl;
         bool triggerCallback = false; 
         
         // Check if the duration of the timer has expired
-        //std::cerr << "Z " << id_ << std::endl;
         triggerCallback = getTime() >= start_time_ + duration_;
-        //std::cerr << "Y " << id_ << std::endl;
 
         if (triggerCallback) {
           ros::TimerEvent event;
-          std::cerr << "W " <<  id_ << " Time: " << getTime() << std::endl;
           callback_(event);
-          std::cerr << "Callback done " <<  id_ <<std::endl;
           start_time_ = getTime(); // Reset the countdown
           if (oneshot_) { // If only running once, shutdown the thread
             running_.store(false);
           }
-          std::cerr << "done rune " <<  id_ <<std::endl;
         }
-       // std::cerr << "X " << id_ << std::endl;
         auto period = std::chrono::milliseconds(10);
         std::this_thread::sleep_for (period);
       }
     }); 
-    std::cerr << "Done creating timer " << id_ << std::endl;
   }
 
   void TestTimer::start() {
-    std::cerr << "C" << std::endl;
     const std::lock_guard<std::mutex> lock(timer_mutex_);
-    std::cerr << "D" << std::endl;
     startImpl();
   }
 
   void TestTimer::stop() {
-    std::cerr << "A" << std::endl;
     const std::lock_guard<std::mutex> lock(timer_mutex_);
-    std::cerr << "B" << std::endl;
     running_.store(false);
   }
 }  // namespace carma_wm_ctrl
