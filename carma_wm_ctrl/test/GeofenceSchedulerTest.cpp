@@ -35,57 +35,6 @@ using ::testing::ReturnArg;
 
 namespace carma_wm_ctrl
 {
-    //   /**
-  //  * @brief Constructor which takes in a TimerFactory. Timers from this factory will be used to generate the triggers
-  //  * for goefence activity.
-  //  *
-  //  * @param timerFactory A pointer to a TimerFactory which can be used to generate timers for geofence triggers.
-  //  */
-  // GeofenceScheduler(std::unique_ptr<TimerFactory> timerFactory);
-
-  // /**
-  //  * @brief Add a geofence to the scheduler. This will cause it to trigger an event when it becomes active or goes
-  //  * inactive according to its schedule
-  //  *
-  //  * @param geofence The geofence to be added
-  //  */
-  // void addGeofence(Geofence geofence);
-
-  // /**
-  //  * @brief The callback which is triggered when a geofence becomes active
-  //  *        This will call the user set active_callback set from the onGeofenceActive function
-  //  *
-  //  * @param event The record of the timer event causing this to trigger
-  //  * @param gf The geofence which is being activated
-  //  * @param timer_id The id of the timer which caused this callback to occur
-  //  */
-  // void startGeofenceCallback(const ros::TimerEvent& event, const Geofence& gf, const int32_t timer_id);
-  // /**
-  //  * @brief The callback which is triggered when a geofence becomes in-active
-  //  *        This will call the user set inactive_callback set from the onGeofenceInactive function
-  //  *
-  //  * @param event The record of the timer event causing this to trigger
-  //  * @param gf The geofence which is being un-activated
-  //  * @param timer_id The id of the timer which caused this callback to occur
-  //  */
-  // void endGeofenceCallback(const ros::TimerEvent& event, const Geofence& gf, const int32_t timer_id);
-  // /**
-  //  * @brief Method which allows the user to set a callback which will be triggered when a geofence becomes active
-  //  *
-  //  * @param active_callback The callback which will be triggered
-  //  */
-  // void onGeofenceActive(std::function<void(const Geofence&)> active_callback);
-  // /**
-  //  * @brief Method which allows the user to set a callback which will be triggered when a geofence becomes in-active
-  //  *
-  //  * @param inactive_callback The callback which will be triggered
-  //  */
-  // void onGeofenceInactive(std::function<void(const Geofence&)> inactive_callback);
-
-  // /**
-  //  * @brief Clears the expired timers from the memory of this scheduler
-  //  */
-  // void clearTimers();
 
 TEST(GeofenceScheduler, Constructor)
 {
@@ -190,6 +139,19 @@ TEST(GeofenceScheduler, addGeofence)
   ASSERT_TRUE(waitForEqOrTimeout(3.0, 2, active_call_count));
   ASSERT_EQ(1, inactive_call_count.load());
   ASSERT_EQ(1, last_active_gf.load());
+
+  ros::Time::setNow(ros::Time(5.5)); // Set current time
+
+  ASSERT_TRUE(waitForEqOrTimeout(3.0, 2, inactive_call_count));
+  ASSERT_EQ(2, active_call_count.load());
+  ASSERT_EQ(1, last_active_gf.load());
+
+  ros::Time::setNow(ros::Time(9.5)); // Set current time
+
+  ASSERT_EQ(2, inactive_call_count.load());
+  ASSERT_EQ(2, active_call_count.load());
+  ASSERT_EQ(1, last_active_gf.load());
+  ASSERT_EQ(1, last_inactive_gf.load());
 
 }
 
