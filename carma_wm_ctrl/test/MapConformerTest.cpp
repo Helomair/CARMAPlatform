@@ -45,6 +45,8 @@ TEST(MapConformer, ensureCompliance)
     FAIL() << "There should be no regulations in the map at this point";
   }
 
-  //lanelet::MapConformer::ensureCompliance(map);
+  // TODO we are here
+  // This runs without exceptions now, but we need at least a bit more validation on the functionality then this
+  lanelet::MapConformer::ensureCompliance(map);
 }
 }  // namespace carma_wm_ctrl

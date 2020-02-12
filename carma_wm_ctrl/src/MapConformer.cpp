@@ -271,6 +271,8 @@ void addInferredPassingControlLine(Lanelet& lanelet, lanelet::LaneletMapPtr map)
   LaneChangeType right_type = getChangeType(right_bound.attribute(AttributeName::Type).value(),
                                             right_bound.attribute(AttributeName::Subtype).value(), participant);
 
+
+
   auto local_control_lines = lanelet.regulatoryElementsAs<PassingControlLine>();
 
   bool foundLeft = false;
@@ -280,6 +282,9 @@ void addInferredPassingControlLine(Lanelet& lanelet, lanelet::LaneletMapPtr map)
   // lanelet's bounds
   for (auto reg_elem : map->regulatoryElementLayer)
   {
+    auto id = reg_elem->id();
+    auto at = AttributeName::Subtype;
+    auto val = reg_elem->attribute(AttributeName::Subtype).value();
     if (reg_elem->attribute(AttributeName::Subtype).value() == PassingControlLine::RuleName)
     {
       auto pcl = std::static_pointer_cast<PassingControlLine>(reg_elem);

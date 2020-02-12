@@ -64,7 +64,7 @@ bool PassingControlLine::boundPassable(const ConstLineString3d& bound,
 
 PassingControlLine::PassingControlLine(Id id, LineStrings3d controlLine, std::vector<std::string> left_participants,
                                        std::vector<std::string> right_participants)
-  : RegulatoryElement{ std::make_shared<lanelet::RegulatoryElementData>(id) }
+  : RegulatoryElement( id, RuleParameterMap(), {{AttributeNamesString::Type, AttributeValueString::RegulatoryElement},{AttributeNamesString::Subtype, RuleName}})
   , left_participants_(left_participants.begin(), left_participants.end())
   , right_participants_(right_participants.begin(), right_participants.end())
 {
@@ -72,7 +72,7 @@ PassingControlLine::PassingControlLine(Id id, LineStrings3d controlLine, std::ve
   auto ref_line_list = parameters()[lanelet::RoleNameString::RefLine];
 
   ref_line_list.insert(ref_line_list.end(), controlLine.begin(), controlLine.end());
-  // TODO validate that provided control line is contingous
+  // TODO validate that provided control line is contigious
 }
 
 // C++ 14 vs 17 parameter export

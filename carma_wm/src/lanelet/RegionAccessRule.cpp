@@ -40,11 +40,9 @@ bool RegionAccessRule::accessable(const std::string& participant) const
 }
 
 RegionAccessRule::RegionAccessRule(Id id, Lanelets lanelets, Areas areas, std::vector<std::string> participants)
-  : RegulatoryElement{ std::make_shared<lanelet::RegulatoryElementData>(id) }
+  : RegulatoryElement( id, RuleParameterMap(), {{AttributeNamesString::Type, AttributeValueString::RegulatoryElement},{AttributeNamesString::Subtype, RuleName}})
   , participants_(participants.begin(), participants.end())
 {
-  //attributes()[AttributeName::Type] = AttributeValueString::RegulatoryElement;
-  //attributes()[AttributeName::Subtype] = RuleName;
 
   auto refers_list = parameters()[lanelet::RoleNameString::Refers];
 

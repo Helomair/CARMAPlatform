@@ -62,7 +62,7 @@ bool DigitalSpeedLimit::appliesTo(const std::string& participant) const
 // TODO some work might be required to make this loadable from a file
 DigitalSpeedLimit::DigitalSpeedLimit(Id id, Velocity speed_limit, LineString3d start_line, LineString3d end_line,
                                      std::vector<std::string> participants)
-  : RegulatoryElement{ std::make_shared<lanelet::RegulatoryElementData>(id) }
+  : RegulatoryElement( id, RuleParameterMap(), {{AttributeNamesString::Type, AttributeValueString::RegulatoryElement},{AttributeNamesString::Subtype, RuleName}})
   , speed_limit_(speed_limit)
   , participants_(participants.begin(), participants.end())
 {
