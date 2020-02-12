@@ -22,6 +22,7 @@
 #include <memory>
 #include <chrono>
 #include <ctime> 
+#include <atomic>
 #include "TestTimer.h"
 #include "TestTimerFactory.h"
 
@@ -92,13 +93,15 @@ TEST(GeofenceScheduler, Constructor)
 }
 
 // This doesn't wait the right amount of time
-bool waitForEqOrTimeout(double timeout_s, uint32_t expected, uint32_t& actual) {
+bool waitForEqOrTimeout(double timeout_s, uint32_t expected, std::atomic<uint32_t>& actual) {
     auto start = std::chrono::system_clock::now();
     std::chrono::duration<double,  std::ratio<1,1>> sec(timeout_s);
-    std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now()-start;
+    auto elapsed_seconds = std::chrono::duration<double>(std::chrono::system_clock::now()-start);
 
     while (elapsed_seconds < sec) {
-      if (actual == expected){
+      //std::cerr << " Expected:  " << expected << " Actual: " << actual << std::endl;
+
+      if (actual.load() == expected){
         return true;
       }
       elapsed_seconds = std::chrono::system_clock::now()-start;
@@ -125,42 +128,69 @@ TEST(GeofenceScheduler, addGeofence)
 
   GeofenceScheduler scheduler(std::make_unique<TestTimerFactory>()); // Create scheduler
 
-  uint32_t call_count = 0;
-  uint32_t last_active_gf = 0;
-  uint32_t last_inactive_gf = 0;
+  std::atomic<uint32_t> active_call_count(0);
+  std::atomic<uint32_t> inactive_call_count(0);
+  std::atomic<uint32_t> last_active_gf(0);
+  std::atomic<uint32_t> last_inactive_gf(0);
   scheduler.onGeofenceActive([&](const Geofence& gf) {
-    call_count++;
-    last_active_gf = gf.id_;
+    active_call_count.store(active_call_count.load() + 1);
+    last_active_gf.store(gf.id_);
+    std::cerr << "Active called for: " << gf.id_ << std::endl;
   });
 
   scheduler.onGeofenceInactive([&](const Geofence& gf) {
-    call_count++;
-    last_inactive_gf = gf.id_;
+    inactive_call_count.store(inactive_call_count.load() + 1);
+    last_inactive_gf.store(gf.id_);
+    std::cerr << "Inactive called for: " << gf.id_ << std::endl;
   });
 
-  ASSERT_EQ(0, call_count);
-  ASSERT_EQ(0, last_active_gf);
-  ASSERT_EQ(0, last_inactive_gf);
+  ASSERT_EQ(0, active_call_count.load());
+  ASSERT_EQ(0, inactive_call_count.load());
+  ASSERT_EQ(0, last_active_gf.load());
+  ASSERT_EQ(0, last_inactive_gf.load());
 
   scheduler.addGeofence(gf);
 
   ros::Time::setNow(ros::Time(1.0)); // Set current time
 
-  ASSERT_EQ(0, call_count);
-  ASSERT_EQ(0, last_active_gf);
-  ASSERT_EQ(0, last_inactive_gf);
+  ASSERT_EQ(0, active_call_count.load());
+  ASSERT_EQ(0, inactive_call_count.load());
+  ASSERT_EQ(0, last_active_gf.load());
+  ASSERT_EQ(0, last_inactive_gf.load());
 
   ros::Time::setNow(ros::Time(2.1)); // Set current time
 
-  ASSERT_TRUE(waitForEqOrTimeout(2.0, 1, last_active_gf));
-  ASSERT_EQ(1, call_count);
-  ASSERT_EQ(0, last_inactive_gf);
+  std::cerr << " Here 1" << std::endl;
+
+  ASSERT_TRUE(waitForEqOrTimeout(3.0, 1, last_active_gf));
+  ASSERT_EQ(1, active_call_count.load());
+  ASSERT_EQ(0, inactive_call_count.load());
+  ASSERT_EQ(0, last_inactive_gf.load());
 
   ros::Time::setNow(ros::Time(3.1)); // Set current time
 
-  ASSERT_TRUE(waitForEqOrTimeout(20.0, 1, last_inactive_gf));
-  ASSERT_EQ(2, call_count);
-  ASSERT_EQ(0, last_active_gf);
+  std::cerr << " Here 2" << std::endl;
+
+  ASSERT_TRUE(waitForEqOrTimeout(3.0, 1, last_inactive_gf));
+  ASSERT_EQ(1, active_call_count.load());
+  ASSERT_EQ(1, inactive_call_count.load());
+  ASSERT_EQ(1, last_active_gf.load());
+
+  ros::Time::setNow(ros::Time(3.5)); // Set current time
+
+  std::cerr << " Here 2" << std::endl;
+
+  ASSERT_EQ(1, active_call_count.load());
+  ASSERT_EQ(1, inactive_call_count.load());
+  ASSERT_EQ(1, last_active_gf.load());
+  ASSERT_EQ(1, last_inactive_gf.load());
+
+  ros::Time::setNow(ros::Time(4.2)); // Set current time
+
+  ASSERT_TRUE(waitForEqOrTimeout(3.0, 2, active_call_count));
+  ASSERT_EQ(1, inactive_call_count.load());
+  ASSERT_EQ(1, last_active_gf.load());
+
 }
 
 }  // namespace carma_wm_ctrl

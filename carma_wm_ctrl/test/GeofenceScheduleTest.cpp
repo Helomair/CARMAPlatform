@@ -66,13 +66,17 @@ TEST(GeofenceSchedule, getNextInterval)
   );
 
   // Test before control start
-  ASSERT_NEAR(2.0, sch.getNextInterval(ros::Time(0)).toSec(), 0.00001);
+  ASSERT_NEAR(2.0, sch.getNextInterval(ros::Time(0)).second.toSec(), 0.00001);
+  ASSERT_FALSE(sch.getNextInterval(ros::Time(0)).first);
   // Test after start but before control_start
-  ASSERT_NEAR(2.0, sch.getNextInterval(ros::Time(1.5)).toSec(), 0.00001);
+  ASSERT_NEAR(2.0, sch.getNextInterval(ros::Time(1.5)).second.toSec(), 0.00001);
+  ASSERT_FALSE(sch.getNextInterval(ros::Time(1.5)).first);
   // Test between first control_start and control_end
-  ASSERT_NEAR(0.0, sch.getNextInterval(ros::Time(2.5)).toSec(), 0.00001);
+  ASSERT_NEAR(0.0, sch.getNextInterval(ros::Time(2.5)).second.toSec(), 0.00001);
+  ASSERT_TRUE(sch.getNextInterval(ros::Time(2.5)).first);
   // Test after control ends
-  ASSERT_NEAR(0.0, sch.getNextInterval(ros::Time(3.5)).toSec(), 0.00001);
+  ASSERT_NEAR(0.0, sch.getNextInterval(ros::Time(3.5)).second.toSec(), 0.00001);
+  ASSERT_FALSE(sch.getNextInterval(ros::Time(3.5)).first);
 
   sch = GeofenceSchedule(
     ros::Time(1),
@@ -83,14 +87,19 @@ TEST(GeofenceSchedule, getNextInterval)
     ros::Duration(2)  // This means the next schedule is a 4 (2+2)
   );
   // Test between end of first control and start of second
-  ASSERT_NEAR(4.0, sch.getNextInterval(ros::Time(3.5)).toSec(), 0.00001);
+  ASSERT_NEAR(4.0, sch.getNextInterval(ros::Time(3.5)).second.toSec(), 0.00001);
+  ASSERT_FALSE(sch.getNextInterval(ros::Time(3.5)).first);
   // Test between 2nd control start and control end
-  ASSERT_NEAR(0.0, sch.getNextInterval(ros::Time(4.5)).toSec(), 0.00001);
+  ASSERT_NEAR(0.0, sch.getNextInterval(ros::Time(4.5)).second.toSec(), 0.00001);
+  ASSERT_TRUE(sch.getNextInterval(ros::Time(4.5)).first);
   // Test after control_end
-  ASSERT_NEAR(0.0, sch.getNextInterval(ros::Time(5.5)).toSec(), 0.00001);
+  ASSERT_NEAR(0.0, sch.getNextInterval(ros::Time(5.5)).second.toSec(), 0.00001);
+  ASSERT_FALSE(sch.getNextInterval(ros::Time(5.5)).first);
   // Test other day of the week
-  ASSERT_NEAR(0.0, sch.getNextInterval(ros::Time(90000)).toSec(), 0.00001);
+  ASSERT_NEAR(0.0, sch.getNextInterval(ros::Time(90000)).second.toSec(), 0.00001);
+  ASSERT_FALSE(sch.getNextInterval(ros::Time(90000)).first);
   // Test after schedule end
-  ASSERT_NEAR(0.0, sch.getNextInterval(ros::Time(7.0)).toSec(), 0.00001);
+  ASSERT_NEAR(0.0, sch.getNextInterval(ros::Time(7.0)).second.toSec(), 0.00001);
+  ASSERT_FALSE(sch.getNextInterval(ros::Time(7.0)).first);
 }
 }  // namespace carma_wm_ctrl

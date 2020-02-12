@@ -60,7 +60,7 @@ namespace carma_wm_ctrl
 
   void TestTimer::startImpl() {
 
-    std::cerr << "Starting timer " << std::endl;
+    std::cerr << "Starting timer: " << id_ << std::endl;
     if (running_.load()) {
       std::cerr << "Duplicate call to start on running thread" << std::endl;
       return;
@@ -70,35 +70,35 @@ namespace carma_wm_ctrl
     running_.store(true);
 
     timer_thread_ = std::thread([this]() { 
-      std::cerr << "E" << std::endl;
+      std::cerr << "E " << id_ << std::endl;
       
       while(running_.load()) {
         const std::lock_guard<std::mutex> lock_timer(timer_mutex_);
-        std::cerr << "F" << std::endl;
+        //std::cerr << "F " << id_ << std::endl;
         bool triggerCallback = false; 
         
         // Check if the duration of the timer has expired
-        std::cerr << "Z" << std::endl;
+        //std::cerr << "Z " << id_ << std::endl;
         triggerCallback = getTime() >= start_time_ + duration_;
-        std::cerr << "Y" << std::endl;
+        //std::cerr << "Y " << id_ << std::endl;
 
         if (triggerCallback) {
           ros::TimerEvent event;
-          std::cerr << "W" << std::endl;
+          std::cerr << "W " <<  id_ << " Time: " << getTime() << std::endl;
           callback_(event);
-          std::cerr << "Callback done" << std::endl;
-          running_.store(false);
-          std::cerr << "done rune" << std::endl;
+          std::cerr << "Callback done " <<  id_ <<std::endl;
+          start_time_ = getTime(); // Reset the countdown
+          if (oneshot_) { // If only running once, shutdown the thread
+            running_.store(false);
+          }
+          std::cerr << "done rune " <<  id_ <<std::endl;
         }
-        std::cerr << "X" << std::endl;
+       // std::cerr << "X " << id_ << std::endl;
         auto period = std::chrono::milliseconds(10);
         std::this_thread::sleep_for (period);
-        if (oneshot_) {
-          running_.store(false);
-        }
       }
     }); 
-    std::cerr << "Done creating timer " << std::endl;
+    std::cerr << "Done creating timer " << id_ << std::endl;
   }
 
   void TestTimer::start() {
