@@ -67,8 +67,7 @@ inline lanelet::Lanelet getLanelet(lanelet::Id id, lanelet::LineString3d& left_l
   ll.attributes()[lanelet::AttributeName::Location] = lanelet::AttributeValueString::Urban;
   ll.attributes()[lanelet::AttributeName::OneWay] = "yes";
   ll.attributes()[lanelet::AttributeName::Dynamic] = "no";
-  ll.attributes()[lanelet::AttributeName::Dynamic] = "no";
-  ll.attributes()[lanelet::AttributeNamesString::Participant] = lanelet::Participants::Vehicle;
+  ll.attributes()[lanelet::AttributeNamesString::ParticipantVehicle] = "yes";
 
   return ll;
 }
@@ -101,9 +100,6 @@ inline lanelet::LaneletMapPtr getDisjointRouteMap()
   auto ll_1 = getLanelet(10000, left_ls_1, right_ls_1, lanelet::AttributeValueString::SolidSolid,
                          lanelet::AttributeValueString::Dashed);
 
-  auto left_subtype = left_ls_1.attributes()[lanelet::AttributeName::Subtype];
-  auto right_subtype = right_ls_1.attributes()[lanelet::AttributeName::Subtype];
-
 
   lanelet::LineString3d right_ls_2(lanelet::utils::getId(), { p6, p7 });
   auto ll_2 =
@@ -116,13 +112,6 @@ inline lanelet::LaneletMapPtr getDisjointRouteMap()
 
   // Create basic map
   lanelet::LaneletMapPtr map = lanelet::utils::createMap({ ll_1, ll_2, ll_3 }, {});
-
-  lanelet::traffic_rules::TrafficRulesUPtr traffic_rules = lanelet::traffic_rules::TrafficRulesFactory::create(
-      lanelet::Locations::Germany, lanelet::Participants::VehicleCar);
-  // TODO how to build CarmaUSTrafficRules?
-    
-  lanelet::routing::RoutingGraphUPtr map_graph = lanelet::routing::RoutingGraph::build(*map, *traffic_rules);
-  map_graph->exportGraphViz("my_graph_orig");
 
   return map;
 }

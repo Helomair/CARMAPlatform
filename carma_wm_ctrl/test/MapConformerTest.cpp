@@ -46,54 +46,57 @@ TEST(MapConformer, ensureCompliance)
     FAIL() << "There should be no regulations in the map at this point";
   }
 
-  // // TODO we are here
-  // // This runs without exceptions now, but we need at least a bit more validation on the functionality then this
-  // lanelet::MapConformer::ensureCompliance(map);
+  // TODO we are here
+  // This runs without exceptions now, but we need at least a bit more validation on the functionality then this
+  lanelet::MapConformer::ensureCompliance(map);
 
-  // // First verify that each lanelet has a left and right control line
-  // ASSERT_EQ(3, map->laneletLayer.size());
-  // for (auto ll : map->laneletLayer) {
-  //   auto control_lines = ll.regulatoryElementsAs<lanelet::PassingControlLine>();
-  //   ASSERT_EQ(2, control_lines.size());
+  // First verify that each lanelet has a left and right control line
+  ASSERT_EQ(3, map->laneletLayer.size());
+  for (auto ll : map->laneletLayer) {
+    auto control_lines = ll.regulatoryElementsAs<lanelet::PassingControlLine>();
+    ASSERT_EQ(2, control_lines.size());
 
-  //   if (ll.id() == 10000) { // First lanelet in disjoint route
-  //     ASSERT_FALSE(lanelet::PassingControlLine::boundPassable(ll.leftBound(),
-  //                         control_lines, false,
-  //                         lanelet::Participants::Vehicle));
+    if (ll.id() == 10000) { // First lanelet in disjoint route
+      ASSERT_FALSE(lanelet::PassingControlLine::boundPassable(ll.leftBound(),
+                          control_lines, false,
+                          lanelet::Participants::Vehicle));
 
-  //     ASSERT_TRUE(lanelet::PassingControlLine::boundPassable(ll.rightBound(),
-  //                          control_lines, true,
-  //                          lanelet::Participants::Vehicle));
-  //   } else if (ll.id() == 10001) {
+      ASSERT_TRUE(lanelet::PassingControlLine::boundPassable(ll.rightBound(),
+                           control_lines, true,
+                           lanelet::Participants::Vehicle));
+    } else if (ll.id() == 10001) {
 
-  //     ASSERT_TRUE(lanelet::PassingControlLine::boundPassable(ll.leftBound(),
-  //                         control_lines, false,
-  //                         lanelet::Participants::Vehicle));
+      ASSERT_TRUE(lanelet::PassingControlLine::boundPassable(ll.leftBound(),
+                          control_lines, false,
+                          lanelet::Participants::Vehicle));
 
-  //     ASSERT_FALSE(lanelet::PassingControlLine::boundPassable(ll.rightBound(),
-  //                          control_lines, true,
-  //                          lanelet::Participants::Vehicle));
-  //   } else if (ll.id() == 10002) {
-  //     ASSERT_FALSE(lanelet::PassingControlLine::boundPassable(ll.leftBound(),
-  //                         control_lines, false,
-  //                         lanelet::Participants::Vehicle));
+      ASSERT_FALSE(lanelet::PassingControlLine::boundPassable(ll.rightBound(),
+                           control_lines, true,
+                           lanelet::Participants::Vehicle));
+    } else if (ll.id() == 10002) {
+      ASSERT_FALSE(lanelet::PassingControlLine::boundPassable(ll.leftBound(),
+                          control_lines, false,
+                          lanelet::Participants::Vehicle));
 
-  //     ASSERT_FALSE(lanelet::PassingControlLine::boundPassable(ll.rightBound(),
-  //                          control_lines, true,
-  //                          lanelet::Participants::Vehicle)); 
-  //   } else {
-  //     FAIL() << "The base map used in TEST(MapConformer, ensureCompliance) has changed. The unit test must be updated";
-  //   }
-  // }
+      ASSERT_FALSE(lanelet::PassingControlLine::boundPassable(ll.rightBound(),
+                           control_lines, true,
+                           lanelet::Participants::Vehicle)); 
+    } else {
+      FAIL() << "The base map used in TEST(MapConformer, ensureCompliance) has changed. The unit test must be updated";
+    }
+  }
   
+  ASSERT_EQ(3, map->laneletLayer.size());
+  ASSERT_EQ(8, map->regulatoryElementLayer.size()); // New map should contain 5 passing control lines and three regiona access rules
+
   // Then verify that routing can still be done properly over this map
   // Build routing graph from map
+
   lanelet::traffic_rules::TrafficRulesUPtr traffic_rules = lanelet::traffic_rules::TrafficRulesFactory::create(
-      lanelet::Locations::Germany, lanelet::Participants::VehicleCar);
-  // TODO how to build CarmaUSTrafficRules?
+      lanelet::traffic_rules::CarmaUSTrafficRules::Location, lanelet::Participants::VehicleCar);
     
   lanelet::routing::RoutingGraphUPtr map_graph = lanelet::routing::RoutingGraph::build(*map, *traffic_rules);
-  map_graph->exportGraphViz("my_graph");
+  map_graph->exportGraphViz("my_grap_h");
 
   // 4. Generate route
   auto ll_1 = map->laneletLayer.find(10000);

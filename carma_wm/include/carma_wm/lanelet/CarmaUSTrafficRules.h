@@ -32,8 +32,12 @@ namespace traffic_rules {
 //! Class for inferring traffic rules for lanelets and areas
 class CarmaUSTrafficRules : public TrafficRules { 
  public:
- 
-  virtual ~CarmaUSTrafficRules() {};
+  // Declare new US location. Prefix with carma to prevent future collisions if lanelet adds US support
+  static constexpr char Location[] = "carma_us";
+
+  CarmaUSTrafficRules(Configuration config = Configuration()) : TrafficRules(config) {};
+  
+  virtual ~CarmaUSTrafficRules() = default;
 
   bool canPass(const ConstLanelet& lanelet) const override;
 
@@ -111,7 +115,6 @@ class CarmaUSTrafficRules : public TrafficRules {
    */ 
   SpeedLimitInformation speedLimit(const ConstLaneletOrArea& lanelet_or_area) const;
 
-  Configuration config_;
 };
 
 std::ostream& operator<<(std::ostream& stream, const SpeedLimitInformation& obj); // TODO are these needed?

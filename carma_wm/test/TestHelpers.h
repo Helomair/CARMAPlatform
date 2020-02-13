@@ -151,7 +151,6 @@ inline void printInvertedIds()
 
 inline void addDisjointRoute(CARMAWorldModel& cmw)
 {
-  printInvertedIds(); // TODO remove
   // 1. Construct map
   auto p1 = getPoint(0, 0, 0);
   auto p2 = getPoint(0, 1, 0);
@@ -187,7 +186,7 @@ inline void addDisjointRoute(CARMAWorldModel& cmw)
 
   // 4. Generate route
   auto optional_route = map_graph->getRoute(ll_1, ll_3);
-  // map_graph->exportGraphViz("my_graph"); // Uncomment to visualize route graph
+  //map_graph->exportGraphViz("my_graph"); // Uncomment to visualize route graph
   lanelet::routing::Route route = std::move(*optional_route);
   LaneletRoutePtr route_ptr = std::make_shared<lanelet::routing::Route>(std::move(route));
   // 5. Set route and map

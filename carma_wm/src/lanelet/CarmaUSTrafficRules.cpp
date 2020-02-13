@@ -19,6 +19,7 @@
 #include <lanelet2_core/geometry/Area.h>
 #include <lanelet2_core/utility/Units.h>
 #include <lanelet2_traffic_rules/TrafficRules.h>
+#include <lanelet2_traffic_rules/TrafficRulesFactory.h>
 #include <lanelet2_traffic_rules/Exceptions.h>
 #include <lanelet2_core/primitives/LaneletOrArea.h>
 #include <lanelet2_core/primitives/BasicRegulatoryElements.h>
@@ -26,12 +27,13 @@
 #include <carma_wm/lanelet/RegionAccessRule.h>
 #include <carma_wm/lanelet/DigitalSpeedLimit.h>
 #include <carma_wm/lanelet/PassingControlLine.h>
+#include <carma_wm/lanelet/DirectionOfTravel.h>
 
 namespace lanelet
 {
 namespace traffic_rules
-{
-
+{ 
+constexpr char CarmaUSTrafficRules::Location[]; // Forward declare Location string
 /**
  * @brief Helper function for determining the common line between a lanelet and area. 
  * Based on the same function in lanelet2_traffic_rules/GenericTrafficRules.cpp. Copied here as it is not exposed by that library
@@ -55,6 +57,24 @@ Optional<ConstLineString3d> determineCommonLine(const ConstArea& ar1, const Cons
   });
 }
 
+// TODO comment/update rename?
+bool canTravelInDir(const lanelet::ConstLanelet& ll, const std::string& participant) {
+  if (!ll.inverted()) {
+    return true; // If this lanelet is not inverted then one-way or bi-directional are both fine
+  }
+
+  auto regs = ll.regulatoryElementsAs<DirectionOfTravel>();
+
+  if (regs.size() == 0) {
+    return false; // Default to one way. So if there is no regulation then return false (only allow oneway)
+  } else if (regs.size() == 1){
+    // Add logic
+    return !(regs[0]->isOneWay()) && regs[0]->appliesTo(participant); // If there is a regulation return true if bi-directional
+  } else {
+    throw std::invalid_argument("CarmaUSTrafficRules could not determine traffic rules as two DirectionOfTravel regulations were applied on lanelet: " + std::to_string(ll.id()));
+  }
+}
+
 bool CarmaUSTrafficRules::canAccessRegion(const ConstLaneletOrArea& region) const
 {
   auto accessRestrictions = region.regulatoryElementsAs<RegionAccessRule>();
@@ -70,6 +90,10 @@ bool CarmaUSTrafficRules::canAccessRegion(const ConstLaneletOrArea& region) cons
 
 bool CarmaUSTrafficRules::canPass(const ConstLanelet& lanelet) const
 {
+  if (!canTravelInDir(lanelet, participant())) { // Check direction of travel
+    return false;
+  }
+  // Check access by participant
   ConstLaneletOrArea region(lanelet);
   return canAccessRegion(region);
 }
@@ -235,11 +259,10 @@ SpeedLimitInformation CarmaUSTrafficRules::speedLimit(const ConstArea& area) con
   return speedLimit(lanelet_or_area);
 }
 
-// TODO This function always returns true meaning CARMA cannot handle non-directed roadways
-// To add that functionality a new regulatory element called direction should be added
+// TODO comment if needed
 bool CarmaUSTrafficRules::isOneWay(const ConstLanelet& lanelet) const
 {
-  return true;
+  return canTravelInDir(lanelet, participant()) != canTravelInDir(lanelet.invert(), participant());
 }
 
 bool CarmaUSTrafficRules::hasDynamicRules(const ConstLanelet& lanelet) const
@@ -247,13 +270,12 @@ bool CarmaUSTrafficRules::hasDynamicRules(const ConstLanelet& lanelet) const
   return true;  // All regulations are considered dynamic in CARMA
 }
 
-
-/**
- * TODO incorporate registration into this class
- * RegisterTrafficRules<GermanVehicle> gvRules(Locations::Germany, Participants::Vehicle);
-RegisterTrafficRules<GermanPedestrian> gpRules(Locations::Germany, Participants::Pedestrian);
-RegisterTrafficRules<GermanBicycle> gbRules(Locations::Germany, Participants::Bicycle);
-*/
+// Register carma traffic rules with lanelet2
+// Since CarmaUSTrafficRules is based solely on regulatory elements there is never a need to infer the participant
+// Therefore all participants can be registered with the same rules
+RegisterTrafficRules<CarmaUSTrafficRules> carmaRulesV(CarmaUSTrafficRules::Location, Participants::Vehicle);
+RegisterTrafficRules<CarmaUSTrafficRules> carmaRulesP(CarmaUSTrafficRules::Location, Participants::Pedestrian);
+RegisterTrafficRules<CarmaUSTrafficRules> carmaRulesBi(CarmaUSTrafficRules::Location, Participants::Bicycle);
 
 }  // namespace traffic_rules
 }  // namespace lanelet

@@ -56,6 +56,7 @@ add_library(${PROJECT_NAME}
   src/lanelet/PassingControlLine.cpp
   src/lanelet/DigitalSpeedLimit.cpp
   src/lanelet/RegionAccessRule.cpp
+  src/lanelet/DirectionOfTravel.cpp
 )
 
 ## Add cmake target dependencies of the library

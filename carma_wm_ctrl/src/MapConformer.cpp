@@ -43,6 +43,52 @@ enum class LaneChangeType
   None
 };
 
+// List of supported participants. Should exactly match elements of lanelet::Participants struct
+constexpr size_t PARTICIPANT_COUNT = 12;
+constexpr const char* participant_types[PARTICIPANT_COUNT] = {
+  lanelet::Participants::Vehicle, //
+  lanelet::Participants::VehicleBus, 
+  lanelet::Participants::VehicleCar, 
+  lanelet::Participants::VehicleCarElectric, 
+  lanelet::Participants::VehicleCarCombustion, 
+  lanelet::Participants::VehicleTruck, 
+  lanelet::Participants::VehicleMotorcycle, 
+  lanelet::Participants::VehicleTaxi, 
+  lanelet::Participants::VehicleEmergency, 
+  lanelet::Participants::Pedestrian, //
+  lanelet::Participants::Bicycle, //
+  lanelet::Participants::Train
+};
+
+/**
+ * @brief Helper function to return the set of all german traffic rules which are currently implemented
+ * 
+ * @return A list of german traffic rules which have been implemented
+ */ 
+std::vector<lanelet::traffic_rules::TrafficRulesUPtr> getAllGermanTrafficRules() {
+  std::vector<lanelet::traffic_rules::TrafficRulesUPtr> german_traffic_rules_set;
+  german_traffic_rules_set.reserve(PARTICIPANT_COUNT);
+
+  for (size_t i = 0; i < PARTICIPANT_COUNT; i++) {
+
+    // This loop is designed to identify the set of currently supported participants for german traffic rules
+    // Using exceptions as logic like this is not usually a good practice, but since this is an operation performed only at startup on a small number of elements
+    // efficiency should not be an issue
+    try {
+
+      lanelet::traffic_rules::TrafficRulesUPtr traffic_rules =
+        lanelet::traffic_rules::TrafficRulesFactory::create(lanelet::Locations::Germany, participant_types[i]);
+      german_traffic_rules_set.emplace_back(std::move(traffic_rules));
+
+    } catch (const lanelet::InvalidInputError& e) {
+      // Ignore participants which there is no generic rules for
+    }
+
+  }
+
+  return german_traffic_rules_set;
+}
+
 /**
  * @brief Helper function to get a value from a map or return a default value when key is not present
  * 
@@ -193,27 +239,27 @@ PassingControlLinePtr buildControlLine(LineString3d& bound, const LaneChangeType
  * 
  * @param lanelet The lanelet to generate the rules for
  * @param map The map which the lanelet is part of
+ * @param default_traffic_rules The set of traffic rules to treat as guidance for interpreting the map
  */ 
-void addInferredAccessRule(Lanelet& lanelet, lanelet::LaneletMapPtr map)
+void addInferredAccessRule(Lanelet& lanelet, lanelet::LaneletMapPtr map, const std::vector<lanelet::traffic_rules::TrafficRulesUPtr>& default_traffic_rules)
 {
   auto access_rules = lanelet.regulatoryElementsAs<RegionAccessRule>();
   // If the lanelet does not have an access rule then add one based on the generic traffic rules
   if (access_rules.size() == 0)
-  {  // No access rule detected so add one
+  { // No access rule detected so add one
 
-    // Get generic german traffic rules object as this follows the GenericTrafficRules the closest
-    std::string participant(lanelet.attribute(AttributeNamesString::Participant).value());
+    // We want to check for all participants which are currently supported
+    std::vector<std::string> allowed_participants;
+    
+    for (const auto& rules : default_traffic_rules) {
+      if (rules->canPass(lanelet)) {
+        allowed_participants.emplace_back(rules->participant());
+      }
+    }
 
-    lanelet::traffic_rules::TrafficRulesUPtr traffic_rules =
-        lanelet::traffic_rules::TrafficRulesFactory::create(lanelet::Locations::Germany, participant);
-
-    // Use german traffic rules to interperest passability of lanelet
-    bool accessable = traffic_rules->canPass(lanelet);
-    // If the lanelet is accessable then add a new rule describing that fact
-    if (accessable)
-    {
+    if (allowed_participants.size() > 0) {
       std::shared_ptr<RegionAccessRule> rar(
-          new RegionAccessRule(lanelet::utils::getId(), { lanelet }, {}, { participant }));
+          new RegionAccessRule(lanelet::utils::getId(), { lanelet }, {}, allowed_participants));
       lanelet.addRegulatoryElement(rar);
       map->add(rar);
     }
@@ -225,27 +271,27 @@ void addInferredAccessRule(Lanelet& lanelet, lanelet::LaneletMapPtr map)
  * 
  * @param area The area to generate the rules for
  * @param map The map which the area is part of
+ * @param default_traffic_rules The set of traffic rules to treat as guidance for interpreting the map
  */ 
-void addInferredAccessRule(Area& area, lanelet::LaneletMapPtr map)
+void addInferredAccessRule(Area& area, lanelet::LaneletMapPtr map, const std::vector<lanelet::traffic_rules::TrafficRulesUPtr>& default_traffic_rules)
 {
   auto access_rules = area.regulatoryElementsAs<RegionAccessRule>();
   // If the lanelet does not have an access rule then add one based on the generic traffic rules
   if (access_rules.size() == 0)
   {  // No access rule detected so add one
 
-    // Get generic german traffic rules object as this follows the GenericTrafficRules the closest
-    std::string participant(area.attribute(AttributeNamesString::Participant).value());
+    // We want to check for all participants which are currently supported
+    std::vector<std::string> allowed_participants;
+    
+    for (const auto& rules : default_traffic_rules) {
+      if (rules->canPass(area)) {
+        allowed_participants.emplace_back(rules->participant());
+      }
+    }
 
-    lanelet::traffic_rules::TrafficRulesUPtr traffic_rules =
-        lanelet::traffic_rules::TrafficRulesFactory::create(lanelet::Locations::Germany, participant);
-
-    // Use german traffic rules to interperest passability of lanelet
-    bool accessable = traffic_rules->canPass(area);
-    // If the lanelet is accessable then add a new rule describing that fact
-    if (accessable)
-    {
+    if (allowed_participants.size() > 0) {
       std::shared_ptr<RegionAccessRule> rar(
-          new RegionAccessRule(lanelet::utils::getId(), {}, { area }, { participant }));
+          new RegionAccessRule(lanelet::utils::getId(), {}, {area}, allowed_participants));
       area.addRegulatoryElement(rar);
       map->add(rar);
     }
@@ -260,7 +306,9 @@ void addInferredAccessRule(Area& area, lanelet::LaneletMapPtr map)
  */ 
 void addInferredPassingControlLine(Lanelet& lanelet, lanelet::LaneletMapPtr map)
 {
-  std::string participant(lanelet.attribute(AttributeNamesString::Participant).value());
+  // Since this class is only designed to add passing control lines based on lane changes
+  // we will always assume the participant is a vehicle
+  std::string participant(lanelet::Participants::Vehicle);
 
   LineString3d left_bound = lanelet.leftBound();
   LineString3d right_bound = lanelet.rightBound();
@@ -340,7 +388,9 @@ void addInferredPassingControlLine(Lanelet& lanelet, lanelet::LaneletMapPtr map)
  */ 
 void addInferredPassingControlLine(Area& area, lanelet::LaneletMapPtr map)
 {
-  std::string participant(area.attribute(AttributeNamesString::Participant).value());
+  // Since this class is only designed to add passing control lines based on lane changes
+  // we will always assume the participant is a vehicle
+  std::string participant(lanelet::Participants::Vehicle);
 
   LineStrings3d outerBounds = area.outerBound();
 
@@ -397,14 +447,14 @@ void ensureCompliance(lanelet::LaneletMapPtr map)
   // Handle lanelets
   for (auto lanelet : map->laneletLayer)
   {
-    addInferredAccessRule(lanelet, map);
+    addInferredAccessRule(lanelet, map, getAllGermanTrafficRules()); // Use german traffic rules as default as they most closely match the generic traffic rules
     addInferredPassingControlLine(lanelet, map);
   }
 
   // Handle areas
   for (auto area : map->areaLayer)
   {
-    addInferredAccessRule(area, map);
+    addInferredAccessRule(area, map, getAllGermanTrafficRules());
     addInferredPassingControlLine(area, map);
   }
 }

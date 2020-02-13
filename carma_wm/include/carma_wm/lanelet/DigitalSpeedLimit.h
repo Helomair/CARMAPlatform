@@ -42,6 +42,8 @@ public:
   Velocity speed_limit_;
   std::unordered_set<std::string> participants_;
 
+  // TODO change this to take lanelets and areas directly
+
   /**
    * @brief Returns the start line of the speed limit
    *
