@@ -44,10 +44,9 @@ RegionAccessRule::RegionAccessRule(Id id, Lanelets lanelets, Areas areas, std::v
   , participants_(participants.begin(), participants.end())
 {
 
-  auto refers_list = parameters()[lanelet::RoleNameString::Refers];
+  parameters()[lanelet::RoleNameString::Refers].insert(parameters()[lanelet::RoleNameString::Refers].end(), lanelets.begin(), lanelets.end());
+  parameters()[lanelet::RoleNameString::Refers].insert(parameters()[lanelet::RoleNameString::Refers].end(), areas.begin(), areas.end());
 
-  refers_list.insert(refers_list.end(), lanelets.begin(), lanelets.end());
-  refers_list.insert(refers_list.end(), areas.begin(), areas.end());
 }
 
 // C++ 14 vs 17 constent definition

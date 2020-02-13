@@ -84,6 +84,8 @@ public:
    */ 
   static bool boundPassable(const ConstLineString3d& bound, const std::vector<std::shared_ptr<const PassingControlLine>>& controlLines, bool fromLeft, const std::string& participant);
 
+  static bool boundPassable(const ConstLineString3d& bound, const std::vector<std::shared_ptr<PassingControlLine>>& controlLines, bool fromLeft, const std::string& participant);
+
   // TODO some work might be required to make this loadable from a file
   /**
    * @brief Constructor takes in an Id and list of contigious line strings that form this PassingControlLine as well as

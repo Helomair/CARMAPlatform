@@ -47,7 +47,7 @@ inline lanelet::BasicPoint2d getBasicPoint(double x, double y)
 }
 
 // Defaults to double solid line on left and double solid line on right
-inline lanelet::Lanelet getLanelet(lanelet::LineString3d& left_ls, lanelet::LineString3d& right_ls,
+inline lanelet::Lanelet getLanelet(lanelet::Id id, lanelet::LineString3d& left_ls, lanelet::LineString3d& right_ls,
                                    const lanelet::Attribute& left_sub_type = lanelet::AttributeValueString::SolidSolid,
                                    const lanelet::Attribute& right_sub_type = lanelet::AttributeValueString::Solid)
 {
@@ -58,7 +58,7 @@ inline lanelet::Lanelet getLanelet(lanelet::LineString3d& left_ls, lanelet::Line
   right_ls.attributes()[lanelet::AttributeName::Subtype] = right_sub_type;
 
   lanelet::Lanelet ll;
-  ll.setId(lanelet::utils::getId());
+  ll.setId(id);
   ll.setLeftBound(left_ls);
   ll.setRightBound(right_ls);
 
@@ -73,7 +73,7 @@ inline lanelet::Lanelet getLanelet(lanelet::LineString3d& left_ls, lanelet::Line
   return ll;
 }
 
-inline lanelet::Lanelet getLanelet(std::vector<lanelet::Point3d> left, std::vector<lanelet::Point3d> right,
+inline lanelet::Lanelet getLanelet(lanelet::Id id, std::vector<lanelet::Point3d> left, std::vector<lanelet::Point3d> right,
                                    const lanelet::Attribute& left_sub_type = lanelet::AttributeValueString::SolidSolid,
                                    const lanelet::Attribute& right_sub_type = lanelet::AttributeValueString::Solid)
 {
@@ -81,7 +81,7 @@ inline lanelet::Lanelet getLanelet(std::vector<lanelet::Point3d> left, std::vect
 
   lanelet::LineString3d right_ls(lanelet::utils::getId(), right);
 
-  return getLanelet(left_ls, right_ls, left_sub_type, right_sub_type);
+  return getLanelet(id, left_ls, right_ls, left_sub_type, right_sub_type);
 }
 
 inline lanelet::LaneletMapPtr getDisjointRouteMap()
@@ -98,20 +98,31 @@ inline lanelet::LaneletMapPtr getDisjointRouteMap()
   auto p8 = getPoint(2, 2, 0);
   lanelet::LineString3d left_ls_1(lanelet::utils::getId(), { p1, p2 });
   lanelet::LineString3d right_ls_1(lanelet::utils::getId(), { p5, p3 });
-  auto ll_1 = getLanelet(left_ls_1, right_ls_1, lanelet::AttributeValueString::SolidSolid,
+  auto ll_1 = getLanelet(10000, left_ls_1, right_ls_1, lanelet::AttributeValueString::SolidSolid,
                          lanelet::AttributeValueString::Dashed);
+
+  auto left_subtype = left_ls_1.attributes()[lanelet::AttributeName::Subtype];
+  auto right_subtype = right_ls_1.attributes()[lanelet::AttributeName::Subtype];
+
 
   lanelet::LineString3d right_ls_2(lanelet::utils::getId(), { p6, p7 });
   auto ll_2 =
-      getLanelet(right_ls_1, right_ls_2, lanelet::AttributeValueString::Dashed, lanelet::AttributeValueString::Solid);
+      getLanelet(10001, right_ls_1, right_ls_2, lanelet::AttributeValueString::Dashed, lanelet::AttributeValueString::Solid);
 
   lanelet::LineString3d left_ls_3(lanelet::utils::getId(), { p3, p4 });
   lanelet::LineString3d right_ls_3(lanelet::utils::getId(), { p7, p8 });
   auto ll_3 =
-      getLanelet(left_ls_3, right_ls_3, lanelet::AttributeValueString::Solid, lanelet::AttributeValueString::Solid);
+      getLanelet(10002, left_ls_3, right_ls_3, lanelet::AttributeValueString::Solid, lanelet::AttributeValueString::Solid);
 
   // Create basic map
   lanelet::LaneletMapPtr map = lanelet::utils::createMap({ ll_1, ll_2, ll_3 }, {});
+
+  lanelet::traffic_rules::TrafficRulesUPtr traffic_rules = lanelet::traffic_rules::TrafficRulesFactory::create(
+      lanelet::Locations::Germany, lanelet::Participants::VehicleCar);
+  // TODO how to build CarmaUSTrafficRules?
+    
+  lanelet::routing::RoutingGraphUPtr map_graph = lanelet::routing::RoutingGraph::build(*map, *traffic_rules);
+  map_graph->exportGraphViz("my_graph_orig");
 
   return map;
 }

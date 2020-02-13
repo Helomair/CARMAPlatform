@@ -38,6 +38,10 @@ bool PassingControlLine::passableFromRight(const std::string& participant) const
   return setContainsParticipant(right_participants_, participant);
 }
 
+bool PassingControlLine::boundPassable(const ConstLineString3d& bound, const std::vector<std::shared_ptr<PassingControlLine>>& controlLines, bool fromLeft, const std::string& participant) {
+  return boundPassable(bound,  utils::transformSharedPtr<const PassingControlLine>(controlLines), fromLeft, participant);
+}
+
 bool PassingControlLine::boundPassable(const ConstLineString3d& bound,
                           const std::vector<std::shared_ptr<const PassingControlLine>>& controlLines, bool fromLeft,
                           const std::string& participant)
@@ -69,9 +73,8 @@ PassingControlLine::PassingControlLine(Id id, LineStrings3d controlLine, std::ve
   , right_participants_(right_participants.begin(), right_participants.end())
 {
 
-  auto ref_line_list = parameters()[lanelet::RoleNameString::RefLine];
+  parameters()[lanelet::RoleNameString::RefLine].insert(parameters()[lanelet::RoleNameString::RefLine].end(), controlLine.begin(), controlLine.end());
 
-  ref_line_list.insert(ref_line_list.end(), controlLine.begin(), controlLine.end());
   // TODO validate that provided control line is contigious
 }
 
