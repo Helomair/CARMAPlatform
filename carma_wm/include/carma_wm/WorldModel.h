@@ -25,6 +25,8 @@
 #include <lanelet2_core/primitives/Point.h>
 #include <lanelet2_routing/Route.h>
 #include <lanelet2_routing/RoutingGraph.h>
+#include <lanelet2_traffic_rules/TrafficRules.h>
+#include <lanelet2_core/utility/Optional.h>
 
 namespace carma_wm
 {
@@ -38,6 +40,9 @@ using LaneletRoutingGraphPtr = std::shared_ptr<lanelet::routing::RoutingGraph>;
 using LaneletRoutingGraphConstPtr = std::shared_ptr<const lanelet::routing::RoutingGraph>;
 using LaneletRoutingGraphUPtr = std::unique_ptr<lanelet::routing::RoutingGraph>;
 using LaneletRoutingGraphConstUPtr = std::unique_ptr<const lanelet::routing::RoutingGraph>;
+
+using TrafficRulesConstPtr = std::shared_ptr<const lanelet::traffic_rules::TrafficRules>;
+using TrafficRulesUConstPtr = std::unique_ptr<const lanelet::traffic_rules::TrafficRules>;
 
 /*! \brief Position in a track based coordinate system where the axis are downtrack and crosstrack.
  *         Positive crosstrack is to the left of the reference line
@@ -256,6 +261,15 @@ public:
    * loaded
    */
   virtual LaneletRoutingGraphConstPtr getMapRoutingGraph() const = 0;
+
+
+  /*! \brief Get a pointer to the traffic rules object used internally by the world model and considered the carma system default
+   *
+   * \param participant The lanelet participant to return the traffic rules object for. Defaults to a generic vehicle
+   * 
+   * \return Optional Shared pointer to an intialized traffic rules object which is used by carma. Optional is false if no rule set is available for the requested participant.
+   */
+  virtual lanelet::Optional<TrafficRulesConstPtr> getTrafficRules(const std::string& participant=lanelet::AttributeNamesString::ParticipantVehicle) const = 0;
 
   /*! \brief Function for computing curvature from 3 points.
    *

@@ -26,6 +26,7 @@
 #include <Eigen/Core>
 #include <Eigen/LU>
 #include <cmath>
+#include <carma_wm/lanelet/CarmaUSTrafficRules.h>
 
 namespace carma_wm
 {
@@ -453,6 +454,23 @@ LaneletRoutingGraphConstPtr CARMAWorldModel::getMapRoutingGraph() const
 {
   return std::static_pointer_cast<const lanelet::routing::RoutingGraph>(map_routing_graph_);  // Cast pointer to const
                                                                                               // variant
+}
+
+lanelet::Optional<TrafficRulesConstPtr> CARMAWorldModel::getTrafficRules(const std::string& participant) const {
+  lanelet::Optional<TrafficRulesConstPtr> optional_ptr;
+  // Create carma traffic rules object
+  try {
+
+    lanelet::traffic_rules::TrafficRulesUPtr traffic_rules = lanelet::traffic_rules::TrafficRulesFactory::create(
+      lanelet::traffic_rules::CarmaUSTrafficRules::Location, participant);
+
+    optional_ptr = std::static_pointer_cast<const lanelet::traffic_rules::TrafficRules>(lanelet::traffic_rules::TrafficRulesPtr(std::move(traffic_rules)));
+
+  } catch (const lanelet::InvalidInputError& e) {
+    return optional_ptr;
+  }
+
+  return optional_ptr;
 }
 
 // NOTE: See WorldModel.h header file for details on source of logic in this function
