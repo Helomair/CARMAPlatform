@@ -95,6 +95,10 @@ inline lanelet::LaneletMapPtr getDisjointRouteMap()
   auto p6 = getPoint(2, 0, 0);
   auto p7 = getPoint(2, 1, 0);
   auto p8 = getPoint(2, 2, 0);
+  auto p9 = getPoint(1, 3, 0);
+  auto p10 = getPoint(2, 3, 0);
+  auto p11 = getPoint(1, 4, 0); // Points for areas
+  auto p12 = getPoint(2, 4, 0);
   lanelet::LineString3d left_ls_1(lanelet::utils::getId(), { p1, p2 });
   lanelet::LineString3d right_ls_1(lanelet::utils::getId(), { p5, p3 });
   auto ll_1 = getLanelet(10000, left_ls_1, right_ls_1, lanelet::AttributeValueString::SolidSolid,
@@ -110,8 +114,28 @@ inline lanelet::LaneletMapPtr getDisjointRouteMap()
   auto ll_3 =
       getLanelet(10002, left_ls_3, right_ls_3, lanelet::AttributeValueString::Solid, lanelet::AttributeValueString::Solid);
 
+  // Add two way linestring
+  lanelet::LineString3d left_ls_4(lanelet::utils::getId(), { p4, p9 });
+  lanelet::LineString3d right_ls_4(lanelet::utils::getId(), { p8, p10 });
+  auto ll_4 =
+      getLanelet(10003, left_ls_4, right_ls_4, lanelet::AttributeValueString::Solid, lanelet::AttributeValueString::Solid);
+  ll_4.attributes()[lanelet::AttributeName::OneWay] = "no";
+
+  // Add an area
+  lanelet::LineString3d area_loop(lanelet::utils::getId(), { p9, p11, p12, p10 });
+  
+  area_loop.attributes()[lanelet::AttributeName::Type] = lanelet::AttributeValueString::LineThin;
+  area_loop.attributes()[lanelet::AttributeName::Subtype] = lanelet::AttributeValueString::Dashed;
+
+  lanelet::Area area(10004, {area_loop});
+
+  area.attributes()[lanelet::AttributeName::Type] = lanelet::AttributeValueString::Multipolygon;
+  area.attributes()[lanelet::AttributeName::Subtype] = lanelet::AttributeValueString::Road;
+  area.attributes()[lanelet::AttributeName::Location] = lanelet::AttributeValueString::Urban;
+  area.attributes()[lanelet::AttributeNamesString::ParticipantVehicle] = "yes";
+
   // Create basic map
-  lanelet::LaneletMapPtr map = lanelet::utils::createMap({ ll_1, ll_2, ll_3 }, {});
+  lanelet::LaneletMapPtr map = lanelet::utils::createMap({ ll_1, ll_2, ll_3, ll_4 }, {area});
 
   return map;
 }

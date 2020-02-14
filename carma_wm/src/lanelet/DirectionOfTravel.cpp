@@ -49,7 +49,7 @@ DirectionOfTravel::DirectionOfTravel(Id id, Lanelets lanelets, std::string direc
   , participants_(participants.begin(), participants.end())
 {
 
-  if (direction_of_travel.compare(OneWay) != 0 || direction_of_travel.compare(BiDirectional) != 0) {
+  if (direction_of_travel.compare(OneWay) != 0 && direction_of_travel.compare(BiDirectional) != 0) {
     throw std::invalid_argument("Failed to build DirectionOfTravel regulation as provided direction_of_travel was not one of [ " + std::string(OneWay) + ", " + std::string(BiDirectional) + " ]");
   }
   

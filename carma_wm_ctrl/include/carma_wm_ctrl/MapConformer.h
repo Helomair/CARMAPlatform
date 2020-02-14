@@ -21,6 +21,7 @@
 #include <lanelet2_traffic_rules/GermanTrafficRules.h>
 #include <carma_wm/lanelet/RegionAccessRule.h>
 #include <carma_wm/lanelet/PassingControlLine.h>
+#include <carma_wm/lanelet/DirectionOfTravel.h>
 
 namespace lanelet
 {

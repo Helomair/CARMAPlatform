@@ -210,7 +210,7 @@ PassingControlLinePtr buildControlLine(LineString3d& bound, const LaneChangeType
       case LaneChangeType::Both:
         return std::shared_ptr<PassingControlLine>(
             new PassingControlLine(lanelet::utils::getId(), { bound.invert() }, { participant }, { participant }));
-      case LaneChangeType::None:
+      default: // LaneChangeType::None
         return std::shared_ptr<PassingControlLine>(
             new PassingControlLine(lanelet::utils::getId(), { bound.invert() }, {}, {}));
     }
@@ -228,7 +228,7 @@ PassingControlLinePtr buildControlLine(LineString3d& bound, const LaneChangeType
       case LaneChangeType::Both:
         return std::shared_ptr<PassingControlLine>(
             new PassingControlLine(lanelet::utils::getId(), { bound }, { participant }, { participant }));
-      case LaneChangeType::None:
+      default: // LaneChangeType::None
         return std::shared_ptr<PassingControlLine>(new PassingControlLine(lanelet::utils::getId(), { bound }, {}, {}));
     }
   }
@@ -257,12 +257,10 @@ void addInferredAccessRule(Lanelet& lanelet, lanelet::LaneletMapPtr map, const s
       }
     }
 
-    if (allowed_participants.size() > 0) {
-      std::shared_ptr<RegionAccessRule> rar(
-          new RegionAccessRule(lanelet::utils::getId(), { lanelet }, {}, allowed_participants));
-      lanelet.addRegulatoryElement(rar);
-      map->add(rar);
-    }
+    std::shared_ptr<RegionAccessRule> rar(
+        new RegionAccessRule(lanelet::utils::getId(), { lanelet }, {}, allowed_participants));
+    lanelet.addRegulatoryElement(rar);
+    map->add(rar);
   }
 }
 
@@ -289,12 +287,10 @@ void addInferredAccessRule(Area& area, lanelet::LaneletMapPtr map, const std::ve
       }
     }
 
-    if (allowed_participants.size() > 0) {
-      std::shared_ptr<RegionAccessRule> rar(
-          new RegionAccessRule(lanelet::utils::getId(), {}, {area}, allowed_participants));
-      area.addRegulatoryElement(rar);
-      map->add(rar);
-    }
+    std::shared_ptr<RegionAccessRule> rar(
+        new RegionAccessRule(lanelet::utils::getId(), {}, {area}, allowed_participants));
+    area.addRegulatoryElement(rar);
+    map->add(rar);
   }
 }
 
@@ -335,7 +331,7 @@ void addInferredPassingControlLine(Lanelet& lanelet, lanelet::LaneletMapPtr map)
       auto pcl = std::static_pointer_cast<PassingControlLine>(reg_elem);
       for (auto sub_line : pcl->controlLine())
       {
-        if (left_bound.id() == sub_line.id())
+        if (left_bound.id() == sub_line.id() && !foundLeft)
         {
           foundLeft = true;
           // Check if our lanelet contains this control line
@@ -349,7 +345,7 @@ void addInferredPassingControlLine(Lanelet& lanelet, lanelet::LaneletMapPtr map)
             lanelet.addRegulatoryElement(pcl);
           }
         }
-        else if (right_bound.id() == sub_line.id())
+        else if (right_bound.id() == sub_line.id() && !foundRight)
         {
           foundRight = true;
           // Check if our lanelet contains this control line
@@ -396,7 +392,7 @@ void addInferredPassingControlLine(Area& area, lanelet::LaneletMapPtr map)
 
   auto local_control_lines = area.regulatoryElementsAs<PassingControlLine>();
 
-  std::vector<size_t> not_found_indices;
+  std::vector<size_t> found_indices;
 
   // Iterate over all regulatory elements in the map to determine if there is an existing regulation for this area's
   // bounds
@@ -412,6 +408,7 @@ void addInferredPassingControlLine(Area& area, lanelet::LaneletMapPtr map)
         {
           if (sub_bound.id() == sub_line.id())
           {
+            found_indices.push_back(i);
             // If an existing regulation applies to this area's bounds then add it to the area
             bool alreadyAdded = lanelet::utils::contains(local_control_lines, pcl);
             if (!alreadyAdded)
@@ -419,42 +416,79 @@ void addInferredPassingControlLine(Area& area, lanelet::LaneletMapPtr map)
               area.addRegulatoryElement(pcl);
             }
           }
-          else
-          {
-            not_found_indices.push_back(i);
-          }
-          i++;
         }
       }
     }
   }
 
   // For all the bounds which did not have an existing regulation create a new one
-  for (size_t i : not_found_indices)
+  size_t i = 0;
+  for (auto sub_bound : outerBounds)
   {
-    LineString3d sub_bound = outerBounds[i];
+    if (lanelet::utils::contains(found_indices, i)) {
+      continue; // Continue if this sub_bound is already accounted for
+    }
+
     LaneChangeType change_type = getChangeType(sub_bound.attribute(AttributeName::Type).value(),
                                                sub_bound.attribute(AttributeName::Subtype).value(), participant);
     PassingControlLinePtr control_line = buildControlLine(sub_bound, change_type, participant);
     area.addRegulatoryElement(control_line);
     map->add(control_line);
+
+    i++;
   }
 }
+
+/**
+ * @brief Generate DirectionOfTravel from the inferred regulations in the provided map and lanelet
+ *        Only adds a regulatory element if the direction of travel is not one_way as that is the default
+ * 
+ * @param lanelet The lanelet to generate directions of travel for
+ * @param map The map which the lanelet is part of
+ * @param default_traffic_rules The set of traffic rules to treat as guidance for interpreting the map
+ */ 
+void addInferredDirectionOfTravel(Lanelet& lanelet, lanelet::LaneletMapPtr map, const std::vector<lanelet::traffic_rules::TrafficRulesUPtr>& default_traffic_rules) {
+  
+  auto direction_of_travel = lanelet.regulatoryElementsAs<DirectionOfTravel>();
+  // If the lanelet does not have an access rule then add one based on the generic traffic rules
+  if (direction_of_travel.size() == 0)
+  { // No direction detected so need to check if one is required
+
+    // We want to check for all participants which are currently supported
+    std::vector<std::string> allowed_participants;
+    
+    for (const auto& rules : default_traffic_rules) {
+      if (!rules->isOneWay(lanelet)) { // Check if this lanelet is not oneway
+        allowed_participants.emplace_back(rules->participant());
+      }
+    }
+
+    if (allowed_participants.size() > 0) { // Only add bi-directional regulations
+      std::shared_ptr<DirectionOfTravel> rar(
+          new DirectionOfTravel(lanelet::utils::getId(), { lanelet }, DirectionOfTravel::BiDirectional, allowed_participants));
+      lanelet.addRegulatoryElement(rar);
+      map->add(rar);
+    }
+  }
+}
+
 }  // namespace
 
 void ensureCompliance(lanelet::LaneletMapPtr map)
 {
+  auto default_traffic_rules = getAllGermanTrafficRules(); // Use german traffic rules as default as they most closely match the generic traffic rules
   // Handle lanelets
   for (auto lanelet : map->laneletLayer)
   {
-    addInferredAccessRule(lanelet, map, getAllGermanTrafficRules()); // Use german traffic rules as default as they most closely match the generic traffic rules
+    addInferredAccessRule(lanelet, map, default_traffic_rules);
     addInferredPassingControlLine(lanelet, map);
+    addInferredDirectionOfTravel(lanelet, map, default_traffic_rules);
   }
 
   // Handle areas
   for (auto area : map->areaLayer)
   {
-    addInferredAccessRule(area, map, getAllGermanTrafficRules());
+    addInferredAccessRule(area, map, default_traffic_rules);
     addInferredPassingControlLine(area, map);
   }
 }

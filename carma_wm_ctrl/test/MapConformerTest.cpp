@@ -42,19 +42,23 @@ TEST(MapConformer, ensureCompliance)
 {
   auto map = carma_wm::getDisjointRouteMap();
 
-  for (auto reg : map->regulatoryElementLayer) {
-    FAIL() << "There should be no regulations in the map at this point";
-  }
+  // Create carma traffic rules object
+  lanelet::traffic_rules::TrafficRulesUPtr traffic_rules = lanelet::traffic_rules::TrafficRulesFactory::create(
+    lanelet::traffic_rules::CarmaUSTrafficRules::Location, lanelet::Participants::VehicleCar);
 
-  // TODO we are here
-  // This runs without exceptions now, but we need at least a bit more validation on the functionality then this
+  ASSERT_EQ(4, map->laneletLayer.size());
+  ASSERT_EQ(1, map->areaLayer.size());
+  ASSERT_EQ(0, map->regulatoryElementLayer.size()) << "There should be no regulations in the map at this point";
+
   lanelet::MapConformer::ensureCompliance(map);
 
-  // First verify that each lanelet has a left and right control line
-  ASSERT_EQ(3, map->laneletLayer.size());
+  // First verify that each lanelet has a left and right control line and a region access rule
   for (auto ll : map->laneletLayer) {
     auto control_lines = ll.regulatoryElementsAs<lanelet::PassingControlLine>();
     ASSERT_EQ(2, control_lines.size());
+
+    auto access_rules = ll.regulatoryElementsAs<lanelet::RegionAccessRule>();
+    ASSERT_EQ(1, access_rules.size());
 
     if (ll.id() == 10000) { // First lanelet in disjoint route
       ASSERT_FALSE(lanelet::PassingControlLine::boundPassable(ll.leftBound(),
@@ -64,6 +68,11 @@ TEST(MapConformer, ensureCompliance)
       ASSERT_TRUE(lanelet::PassingControlLine::boundPassable(ll.rightBound(),
                            control_lines, true,
                            lanelet::Participants::Vehicle));
+      
+      ASSERT_TRUE(access_rules[0]->accessable(lanelet::Participants::Vehicle));
+
+      ASSERT_TRUE(traffic_rules->isOneWay(ll));
+
     } else if (ll.id() == 10001) {
 
       ASSERT_TRUE(lanelet::PassingControlLine::boundPassable(ll.leftBound(),
@@ -73,6 +82,11 @@ TEST(MapConformer, ensureCompliance)
       ASSERT_FALSE(lanelet::PassingControlLine::boundPassable(ll.rightBound(),
                            control_lines, true,
                            lanelet::Participants::Vehicle));
+
+      ASSERT_TRUE(access_rules[0]->accessable(lanelet::Participants::Vehicle));
+
+      ASSERT_TRUE(traffic_rules->isOneWay(ll));
+
     } else if (ll.id() == 10002) {
       ASSERT_FALSE(lanelet::PassingControlLine::boundPassable(ll.leftBound(),
                           control_lines, false,
@@ -81,30 +95,81 @@ TEST(MapConformer, ensureCompliance)
       ASSERT_FALSE(lanelet::PassingControlLine::boundPassable(ll.rightBound(),
                            control_lines, true,
                            lanelet::Participants::Vehicle)); 
+      
+      ASSERT_TRUE(access_rules[0]->accessable(lanelet::Participants::Vehicle));
+
+      ASSERT_TRUE(traffic_rules->isOneWay(ll));
+
+    } else if (ll.id() == 10003) { // Two way lanelet
+      ASSERT_FALSE(lanelet::PassingControlLine::boundPassable(ll.leftBound(),
+                          control_lines, false,
+                          lanelet::Participants::Vehicle));
+
+      ASSERT_FALSE(lanelet::PassingControlLine::boundPassable(ll.rightBound(),
+                           control_lines, true,
+                           lanelet::Participants::Vehicle)); 
+      
+      ASSERT_TRUE(access_rules[0]->accessable(lanelet::Participants::Vehicle));
+
+      ASSERT_FALSE(traffic_rules->isOneWay(ll));
+
     } else {
-      FAIL() << "The base map used in TEST(MapConformer, ensureCompliance) has changed. The unit test must be updated";
+      FAIL() << "The base map used in TEST(MapConformer, ensureCompliance) has changed. The unit test must be updated. Lanelet Check";
+    }
+  }
+
+  // Check areas
+  for (auto area : map->areaLayer) {
+    auto control_lines = area.regulatoryElementsAs<lanelet::PassingControlLine>();
+    ASSERT_EQ(1, control_lines.size());
+
+    auto access_rules = area.regulatoryElementsAs<lanelet::RegionAccessRule>();
+    ASSERT_EQ(1, access_rules.size());
+
+    if (area.id() == 10004) { // First lanelet in disjoint route
+      ASSERT_EQ(1, area.outerBound().size());
+      ASSERT_TRUE(lanelet::PassingControlLine::boundPassable(area.outerBound()[0],
+                          control_lines, false,
+                          lanelet::Participants::Vehicle));
+
+      ASSERT_TRUE(lanelet::PassingControlLine::boundPassable(area.outerBound()[0],
+                          control_lines, true,
+                          lanelet::Participants::Vehicle));
+      
+      ASSERT_FALSE(access_rules[0]->accessable(lanelet::Participants::Vehicle));
+
+    } else {
+      FAIL() << "The base map used in TEST(MapConformer, ensureCompliance) has changed. The unit test must be updated. Area Check";
     }
   }
   
-  ASSERT_EQ(3, map->laneletLayer.size());
-  ASSERT_EQ(8, map->regulatoryElementLayer.size()); // New map should contain 5 passing control lines and three regiona access rules
+  ASSERT_EQ(1, map->areaLayer.size());
+  ASSERT_EQ(4, map->laneletLayer.size());
+  ASSERT_EQ(14, map->regulatoryElementLayer.size()); // New map should contain 7 passing control lines and 4 region access rules and 1 direction of travel rule
 
   // Then verify that routing can still be done properly over this map
   // Build routing graph from map
-
-  lanelet::traffic_rules::TrafficRulesUPtr traffic_rules = lanelet::traffic_rules::TrafficRulesFactory::create(
-      lanelet::traffic_rules::CarmaUSTrafficRules::Location, lanelet::Participants::VehicleCar);
     
   lanelet::routing::RoutingGraphUPtr map_graph = lanelet::routing::RoutingGraph::build(*map, *traffic_rules);
-  map_graph->exportGraphViz("my_grap_h");
 
-  // 4. Generate route
+  // Try Generating a route
   auto ll_1 = map->laneletLayer.find(10000);
   auto ll_3 = map->laneletLayer.find(10002);
-  std::cerr << "It1 Id: " << (*ll_1).id() << "  It3 Id: " << (*ll_3).id() << std::endl;
+ 
   auto optional_route = map_graph->getRoute(*ll_1, *ll_3);
+  
   ASSERT_TRUE((bool)optional_route); // Routing is possible
-  // map_graph->exportGraphViz("my_graph"); // Uncomment to visualize route graph
+ 
+  auto shortest_path = (*optional_route).shortestPath();
+ 
+  // Verify resulting route
+  ASSERT_EQ(3, shortest_path.size());
+
+  lanelet::Id count = 10000;
+  for (auto ll : shortest_path) {
+    ASSERT_EQ(count, ll.id());
+    count++;
+  }
 
 }
 }  // namespace carma_wm_ctrl
