@@ -22,20 +22,8 @@
 #include <lanelet2_core/primitives/Lanelet.h>
 #include <lanelet2_core/geometry/Lanelet.h>
 #include <type_traits>
-// TODO add ros logging
 
-// TODO consider applying the lanelet2_extension for overwriting lanelet centerlines
-
-// TODO remove includes below here
-#include <carma_wm_ctrl/ROSTimerFactory.h>
-#include <carma_wm_ctrl/GeofenceScheduler.h>
-#include <carma_wm/lanelet/DigitalSpeedLimit.h>
-#include <carma_wm/lanelet/PassingControlLine.h>
-#include <carma_wm/lanelet/RegionAccessRule.h>
-#include <carma_wm/lanelet/CarmaUSTrafficRules.h>
-
-
-namespace carma_wm_ctrl  // TODO should this be carma_wm or carma_wm_ctrl?
+namespace carma_wm_ctrl
 {
 
   using std::placeholders::_1;
@@ -52,9 +40,9 @@ void WMBroadcaster::baseMapCallback(const autoware_lanelet2_msgs::MapBinConstPtr
   std::lock_guard<std::mutex> guard(map_mutex_);
   
   static bool firstCall = true;
-  firstCall = false;
   // This function should generally only ever be called one time so log a warning if it occurs multiple times
   if (firstCall) {
+    firstCall = false;
     ROS_INFO("WMBroadcaster::baseMapCallback called for first time with new map message");
   } else {
     ROS_WARN("WMBroadcaster::baseMapCallback called multiple times in the same node");
@@ -74,9 +62,10 @@ void WMBroadcaster::baseMapCallback(const autoware_lanelet2_msgs::MapBinConstPtr
   map_pub_(compliant_map_msg);
 };
 
-void WMBroadcaster::geofenceCallback(/*TODO add message type here once defined*/){
+/*TODO Replace geofence parameter with message type here once defined*/
+void WMBroadcaster::geofenceCallback(const Geofence& gf){
   std::lock_guard<std::mutex> guard(map_mutex_);
-  Geofence gf;
+
   scheduler_.addGeofence(gf); // Add the geofence to the schedule
   ROS_INFO_STREAM("New geofence message received by WMBroadcaster with id" << gf.id_);
 };

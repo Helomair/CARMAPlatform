@@ -62,9 +62,9 @@ public:
   /*!
    * \brief Callback to add a geofence to the map
    *
-   * \param geofence_msg The geofence to add
+   * \param geofence_msg The geofence to add. TODO replace with actual message type once defined
    */
-  void geofenceCallback(/*TODO*/);
+  void geofenceCallback(const Geofence& gf);
 
   /*!
    * \brief Adds a geofence to the current map
