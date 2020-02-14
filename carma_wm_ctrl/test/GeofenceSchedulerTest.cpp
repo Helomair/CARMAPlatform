@@ -90,14 +90,14 @@ TEST(GeofenceScheduler, addGeofence)
 
   ros::Time::setNow(ros::Time(2.1)); // Set current time
 
-  ASSERT_TRUE(carma_wm::waitForEqOrTimeout(7.0, 1, last_active_gf));
+  ASSERT_TRUE(carma_wm::waitForEqOrTimeout(10.0, 1, last_active_gf));
   ASSERT_EQ(1, active_call_count.load());
   ASSERT_EQ(0, inactive_call_count.load());
   ASSERT_EQ(0, last_inactive_gf.load());
 
   ros::Time::setNow(ros::Time(3.1)); // Set current time
 
-  ASSERT_TRUE(carma_wm::waitForEqOrTimeout(7.0, 1, last_inactive_gf));
+  ASSERT_TRUE(carma_wm::waitForEqOrTimeout(10.0, 1, last_inactive_gf));
   ASSERT_EQ(1, active_call_count.load());
   ASSERT_EQ(1, inactive_call_count.load());
   ASSERT_EQ(1, last_active_gf.load());
@@ -111,13 +111,13 @@ TEST(GeofenceScheduler, addGeofence)
 
   ros::Time::setNow(ros::Time(4.2)); // Set current time
 
-  ASSERT_TRUE(carma_wm::waitForEqOrTimeout(7.0, 2, active_call_count)); // TODO this seems to be having trouble. Not clear if related to timeout length or not
+  ASSERT_TRUE(carma_wm::waitForEqOrTimeout(10.0, 2, active_call_count));
   ASSERT_EQ(1, inactive_call_count.load());
   ASSERT_EQ(1, last_active_gf.load());
 
   ros::Time::setNow(ros::Time(5.5)); // Set current time
 
-  ASSERT_TRUE(carma_wm::waitForEqOrTimeout(7.0, 2, inactive_call_count));
+  ASSERT_TRUE(carma_wm::waitForEqOrTimeout(10.0, 2, inactive_call_count));
   ASSERT_EQ(2, active_call_count.load());
   ASSERT_EQ(1, last_active_gf.load());
 

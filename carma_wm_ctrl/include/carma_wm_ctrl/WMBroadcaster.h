@@ -29,11 +29,11 @@
 
 #include "MapConformer.h"
 
-namespace carma_wm_ctrl  // TODO should this be carma_wm or carma_wm_ctrl?
+namespace carma_wm_ctrl 
 {
 
 /*!
- * \brief Class which provies exposes map publication and carma_wm update logic // TODO update comments
+ * \brief Class which provies exposes map publication and carma_wm update logic 
  *
  * The WMBroadcaster handles updating the lanelet2 base map and publishing the new versions to the rest of the CARMA
  * Platform ROS network. The broadcaster also provides functions for adding or removing geofences from the map and
@@ -54,7 +54,6 @@ public:
    * \brief Callback to set the base map when it has been loaded
    *
    * \param map_msg The map message to use as the base map
-   * TODO how to handle multiple calls to this
    *
    */
   void baseMapCallback(const autoware_lanelet2_msgs::MapBinConstPtr& map_msg);

@@ -74,7 +74,6 @@ TEST(WMBroadcaster, baseMapCallback)
   ASSERT_EQ(1, base_map_call_count);
 }
 
-// TODO 
 // Since the actual logic for adding geofences to the map has not yet been added
 // this unit test has to be manually verified by looking for the following to log messages
 // First "Adding active geofence to the map with geofence id: 1"

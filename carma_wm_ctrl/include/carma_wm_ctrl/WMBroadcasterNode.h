@@ -22,7 +22,7 @@
 #include <carma_wm_ctrl/WMBroadcaster.h>
 #include <ros/ros.h>
 
-namespace carma_wm_ctrl  // TODO should this be carma_wm or carma_wm_ctrl?
+namespace carma_wm_ctrl 
 {
 /*!
  * \brief Node which provies exposes map publication and carma_wm update logic

@@ -7,7 +7,6 @@ set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
 
 ## Set catkin dependencies
-# TODO review deps
 set ( PKG_CATKIN_DEPS 
   autoware_lanelet2_msgs
   lanelet2_core

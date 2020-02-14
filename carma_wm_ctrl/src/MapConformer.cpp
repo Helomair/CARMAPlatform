@@ -334,11 +334,7 @@ void addInferredPassingControlLine(Lanelet& lanelet, lanelet::LaneletMapPtr map)
         if (left_bound.id() == sub_line.id() && !foundLeft)
         {
           foundLeft = true;
-          // Check if our lanelet contains this control line
-          // If it does not then add it
-          // TODO unit test contains call here
-          // replace with if it does not work lanelet::utils::find_if(local_control_lines.begin(),
-          // local_control_lines.end(), [&reg_elem](auto& elem) { return reg_elem.id() == elem.id(); });
+
           bool alreadyAdded = lanelet::utils::contains(local_control_lines, pcl);
           if (!alreadyAdded)
           {
