@@ -841,4 +841,18 @@ TEST(CARMAWorldModelTest, getLaneletsBetween)
   ASSERT_EQ(1, result.size());
   ASSERT_NEAR(result[0].id(), (cmw.getRoute()->shortestPath().begin() + 1)->id(), 0.000001);
 }
+
+TEST(CARMAWorldModelTest, getTrafficRules)
+{
+  CARMAWorldModel cmw;
+
+  ///// Test straight route
+  addStraightRoute(cmw);
+
+  auto default_participant = cmw.getTrafficRules();
+  ASSERT_EQ();// TODO string comparison of participant vs lanelet::AttributeNamesString::ParticipantVehicle
+
+  // TODO same check as above but test VehicleCar and Pedestrian
+
+}
 }  // namespace carma_wm
