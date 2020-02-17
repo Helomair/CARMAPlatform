@@ -352,8 +352,8 @@ void CARMAWorldModel::setMap(lanelet::LaneletMapPtr map)
 {
   semantic_map_ = map;
   // Build routing graph from map
-  lanelet::traffic_rules::TrafficRulesUPtr traffic_rules = lanelet::traffic_rules::TrafficRulesFactory::create(
-      lanelet::Locations::Germany, lanelet::Participants::VehicleCar);
+  TrafficRulesConstPtr traffic_rules = *(getTrafficRules(lanelet::Participants::Vehicle));
+
   lanelet::routing::RoutingGraphUPtr map_graph = lanelet::routing::RoutingGraph::build(*semantic_map_, *traffic_rules);
   map_routing_graph_ = std::move(map_graph);
 }
@@ -388,8 +388,8 @@ void CARMAWorldModel::computeDowntrackReferenceLine()
 
   lanelet::routing::LaneletPath shortest_path = route_->shortestPath();
   // Build shortest path routing graph
-  lanelet::traffic_rules::TrafficRulesUPtr traffic_rules = lanelet::traffic_rules::TrafficRulesFactory::create(
-      lanelet::Locations::Germany, lanelet::Participants::VehicleCar);
+  TrafficRulesConstPtr traffic_rules = *(getTrafficRules(lanelet::Participants::Vehicle));
+
   lanelet::routing::RoutingGraphUPtr shortest_path_graph =
       lanelet::routing::RoutingGraph::build(*shortest_path_view_, *traffic_rules);
 

@@ -73,8 +73,6 @@ class CarmaUSTrafficRules : public TrafficRules {
   /**
    * @brief Same usage as PassingControlLine::boundPassable, but the participant is provided by this class
    * 
-   * TODO add comment if using fallback logic
-   * 
    */ 
   bool boundPassable(const ConstLineString3d& bound, const std::vector<std::shared_ptr<const PassingControlLine>>& controlLines, bool fromLeft) const;
 
@@ -107,10 +105,6 @@ class CarmaUSTrafficRules : public TrafficRules {
   SpeedLimitInformation speedLimit(const ConstLaneletOrArea& lanelet_or_area) const;
 
 };
-
-std::ostream& operator<<(std::ostream& stream, const SpeedLimitInformation& obj); // TODO are these needed?
-
-std::ostream& operator<<(std::ostream& stream, const TrafficRules& obj);
 
 }  // namespace traffic_rules
 }  // namespace lanelet

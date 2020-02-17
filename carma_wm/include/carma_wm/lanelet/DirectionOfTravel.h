@@ -25,7 +25,7 @@
 namespace lanelet
 {
 /**
- * @brief TODO
+ * @brief A direction of travel regulation defines if a lanelet is One Way or Bi-Directional
  *
  * @ingroup RegulatoryElementPrimitives
  * @ingroup Primitives
