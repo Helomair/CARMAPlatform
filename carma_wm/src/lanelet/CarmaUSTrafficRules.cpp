@@ -41,7 +41,7 @@ constexpr char CarmaUSTrafficRules::Location[]; // Forward declare Location stri
 Optional<ConstLineString3d> determineCommonLine(const ConstLanelet& ll, const ConstArea& ar)
 {
   return utils::findIf(ar.outerBound(), [p1 = ll.leftBound().back(), p2 = ll.rightBound().back()](auto& boundLs) {
-    return (boundLs.back() == p1 && boundLs.front() == p2);
+    return (boundLs.back() == p1 && boundLs.front() == p2); 
   });
 }
 
@@ -160,7 +160,7 @@ bool CarmaUSTrafficRules::canPass(const ConstArea& from, const ConstLanelet& to)
   {
     return boundPassable(to.leftBound(), from.regulatoryElementsAs<PassingControlLine>(), true);
   }
-  auto line = determineCommonLine(to.invert(), from);  // TODO verify this inversion
+  auto line = determineCommonLine(to, from);
   if (!!line)
   {
     return boundPassable(*line, from.regulatoryElementsAs<PassingControlLine>(), false);

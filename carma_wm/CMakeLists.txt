@@ -99,6 +99,7 @@ catkin_add_gmock(${PROJECT_NAME}-test
   test/lanelet/PassingControlLineTest.cpp
   test/lanelet/DirectionOfTravelTest.cpp
   test/lanelet/DigitalSpeedLimitTest.cpp
+  test/lanelet/CarmaUSTrafficRulesTest.cpp
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test # Add test directory as working directory for unit tests
 )
 

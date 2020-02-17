@@ -25,6 +25,7 @@
 #include <carma_wm/lanelet/RegionAccessRule.h>
 #include <carma_wm/lanelet/DigitalSpeedLimit.h>
 #include <carma_wm/lanelet/PassingControlLine.h>
+#include <carma_wm/lanelet/DirectionOfTravel.h>
 
 namespace lanelet {
 namespace traffic_rules {
@@ -60,22 +61,12 @@ class CarmaUSTrafficRules : public TrafficRules {
 
   SpeedLimitInformation speedLimit(const ConstArea& area) const override;
 
-  //! returns whether a lanelet can be driven in one direction only
-  // TODO This function always returns true meaning CARMA cannot handle non-directed roadways
-  // To add that functionality a new regulatory element called direction should be added
   bool isOneWay(const ConstLanelet& lanelet) const override;
 
   /**
    * @brief NOTE: This function always returns true as all elements in CARMA can contain dynamic rules there is never a reason to assume otherwise
    */ 
   bool hasDynamicRules(const ConstLanelet& lanelet) const override;
-
-  // TODO remove handled by TrafficRules base class
-  //const Configuration& configuration() const;
-
-  //const std::string& participant() const;
-
-  //const std::string& location() const;
 
  private:
 
