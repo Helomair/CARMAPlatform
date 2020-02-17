@@ -57,7 +57,9 @@ Optional<ConstLineString3d> determineCommonLine(const ConstArea& ar1, const Cons
   });
 }
 
-// TODO comment/update rename?
+/**
+ * @brief Helper function for determining the travel direction of a lanelet. 
+ */ 
 bool canTravelInDir(const lanelet::ConstLanelet& ll, const std::string& participant) {
   if (!ll.inverted()) {
     return true; // If this lanelet is not inverted then one-way or bi-directional are both fine
@@ -104,7 +106,7 @@ bool CarmaUSTrafficRules::canPass(const ConstArea& area) const
   return canAccessRegion(region);
 }
 
-// TODO NOTE: Basic on the GenericTrafficRules object this function is for non-lanechange passing
+// NOTE: Based on the GenericTrafficRules object this function is for non-lanechange passing
 bool CarmaUSTrafficRules::canPass(const ConstLanelet& from, const ConstLanelet& to) const
 {
   return geometry::follows(from, to) && canPass(from) && canPass(to);
@@ -259,7 +261,6 @@ SpeedLimitInformation CarmaUSTrafficRules::speedLimit(const ConstArea& area) con
   return speedLimit(lanelet_or_area);
 }
 
-// TODO comment if needed
 bool CarmaUSTrafficRules::isOneWay(const ConstLanelet& lanelet) const
 {
   return canTravelInDir(lanelet, participant()) != canTravelInDir(lanelet.invert(), participant());

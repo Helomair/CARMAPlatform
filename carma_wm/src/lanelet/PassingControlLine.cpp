@@ -75,7 +75,6 @@ PassingControlLine::PassingControlLine(Id id, LineStrings3d controlLine, std::ve
 
   parameters()[lanelet::RoleNameString::RefLine].insert(parameters()[lanelet::RoleNameString::RefLine].end(), controlLine.begin(), controlLine.end());
 
-  // TODO validate that provided control line is contigious
 }
 
 // C++ 14 vs 17 parameter export
