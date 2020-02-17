@@ -91,7 +91,7 @@ public:
 
   double getAngleBetweenVectors(const Eigen::Vector2d& vec1, const Eigen::Vector2d& vec2) const override;
 
-  lanelet::Optional<TrafficRulesConstPtr> getTrafficRules(const std::string& participant) const override;
+  lanelet::Optional<TrafficRulesConstPtr> getTrafficRules(const std::string& participant=lanelet::Participants::Vehicle) const override;
 
 private:
   /*! \brief Helper function to compute the geometry of the route downtrack/crosstrack reference line

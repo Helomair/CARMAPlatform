@@ -269,7 +269,7 @@ public:
    * 
    * \return Optional Shared pointer to an intialized traffic rules object which is used by carma. Optional is false if no rule set is available for the requested participant.
    */
-  virtual lanelet::Optional<TrafficRulesConstPtr> getTrafficRules(const std::string& participant=lanelet::AttributeNamesString::ParticipantVehicle) const = 0;
+  virtual lanelet::Optional<TrafficRulesConstPtr> getTrafficRules(const std::string& participant=lanelet::Participants::Vehicle) const = 0;
 
   /*! \brief Function for computing curvature from 3 points.
    *
