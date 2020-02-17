@@ -22,15 +22,10 @@ namespace lanelet
 {
 /**
  * @brief Represents a speed limit which can be set dynamically either through a V2X communications service.
- *        In a standard used case a digital speed limit would be expected to have precedence over a speed limit from a
- * sign
+ *        In a standard used case a digital speed limit would be expected to have precedence over a speed limit from a sign
  *
  * A digital speed limit is dynamic and is normally provided through a communications service. This means the speed
- * limit is stored directly in the regulatory element rather than a TrafficSign element. A speed limit has a start and
- * end line. If the start line crosses only a single lanelet it means the speed limit only applies to that lane. If the
- * start line crosses multiple lanelets it is assumed to apply to all those lanes as well. If the start line crosses the
- * entire road it is assumed to apply to all lanes until the end line even if additional lanes appear unless they have
- * their own speed limits.
+ * limit is stored directly in the regulatory element rather than a TrafficSign element. A speed limit is applied uniformly accross all affected lanelets.
  *
  * @ingroup RegulatoryElementPrimitives
  * @ingroup Primitives
@@ -42,33 +37,19 @@ public:
   Velocity speed_limit_;
   std::unordered_set<std::string> participants_;
 
-  // TODO change this to take lanelets and areas directly
-
   /**
-   * @brief Returns the start line of the speed limit
+   * @brief Returns the lanelets this rule applies to
    *
-   * @return The start line of the speed limit
+   * @return Lanelets affected by this access rule
    */
-  ConstLineString3d startLine() const;
+  ConstLanelets getLanelets() const;
 
   /**
-   * @brief Same as ConstLineString3d startLine() const but without the const modifier
-   * However, the implementation of this method is expected to be const
-   */
-  LineString3d startLine();
-
-  /**
-   * @brief Returns the end line of the speed limit
+   * @brief Returns the areas this rule applies to
    *
-   * @return The end line of the speed limit
+   * @return The areas affected by this rule
    */
-  ConstLineString3d endLine() const;
-
-  /**
-   * @brief Same as ConstLineString3d endLine() const but without the const modifier
-   * However, the implementation of this method is expected to be const
-   */
-  LineString3d endLine();
+  ConstAreas getAreas() const;
 
   /**
    * @brief Returns the speed limit defined by this regulation
@@ -98,11 +79,11 @@ public:
    *
    * @param id The lanelet::Id of this object
    * @param speed_limit The velocity which will be treated as the speed limit in this region
-   * @param start_line The start line of this speed limit
-   * @param end_line The end line of this speed limit
+   * @param lanelets The lanelets this speed limit applies to
+   * @param areas The areas this speed limit applies to
    * @param participants The set of participants which this speed limit will apply to
    */
-  DigitalSpeedLimit(Id id, Velocity speed_limit, LineString3d start_line, LineString3d end_line,
+  DigitalSpeedLimit(Id id, Velocity speed_limit, Lanelets lanelets, Areas areas,
                     std::vector<std::string> participants);
 
 protected:

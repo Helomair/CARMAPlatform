@@ -20,28 +20,15 @@
 
 namespace lanelet
 {
-ConstLineString3d DigitalSpeedLimit::startLine() const
+
+ConstLanelets DigitalSpeedLimit::getLanelets() const
 {
-  auto line_strings = getParameters<ConstLineString3d>(RoleName::RefLine);
-  return line_strings[0];
+  return getParameters<ConstLanelet>(RoleName::Refers);
 }
 
-LineString3d DigitalSpeedLimit::startLine()
+ConstAreas DigitalSpeedLimit::getAreas() const
 {
-  auto line_strings = getParameters<LineString3d>(RoleName::RefLine);
-  return line_strings[0];
-}
-
-ConstLineString3d DigitalSpeedLimit::endLine() const
-{
-  auto line_strings = getParameters<ConstLineString3d>(RoleName::CancelLine);
-  return line_strings[0];
-}
-
-LineString3d DigitalSpeedLimit::endLine()
-{
-  auto line_strings = getParameters<LineString3d>(RoleName::CancelLine);
-  return line_strings[0];
+  return getParameters<ConstArea>(RoleName::Refers);
 }
 
 Velocity DigitalSpeedLimit::getSpeedLimit() const
@@ -60,16 +47,15 @@ bool DigitalSpeedLimit::appliesTo(const std::string& participant) const
 }
 
 // TODO some work might be required to make this loadable from a file
-DigitalSpeedLimit::DigitalSpeedLimit(Id id, Velocity speed_limit, LineString3d start_line, LineString3d end_line,
+DigitalSpeedLimit::DigitalSpeedLimit(Id id, Velocity speed_limit, Lanelets lanelets, Areas areas,
                                      std::vector<std::string> participants)
   : RegulatoryElement( id, RuleParameterMap(), {{AttributeNamesString::Type, AttributeValueString::RegulatoryElement},{AttributeNamesString::Subtype, RuleName}})
   , speed_limit_(speed_limit)
   , participants_(participants.begin(), participants.end())
 {
 
-  // TODO add attribute for speed limit value 
-  parameters().insert({ lanelet::RoleNameString::RefLine, { start_line } });
-  parameters().insert({ lanelet::RoleNameString::CancelLine, { end_line } });
+  parameters()[lanelet::RoleNameString::Refers].insert(parameters()[lanelet::RoleNameString::Refers].end(), lanelets.begin(), lanelets.end());
+  parameters()[lanelet::RoleNameString::Refers].insert(parameters()[lanelet::RoleNameString::Refers].end(), areas.begin(), areas.end());
 }
 
 // C++ 14 vs 17 constant defintion
