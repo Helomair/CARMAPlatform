@@ -18,6 +18,10 @@
 
 namespace lanelet
 {
+constexpr char PassingControlLine::FromLeft[];
+constexpr char PassingControlLine::FromRight[];
+constexpr char PassingControlLine::FromBoth[];
+
 ConstLineStrings3d PassingControlLine::controlLine() const
 {
   return getParameters<ConstLineString3d>(RoleName::RefLine);
@@ -66,15 +70,43 @@ bool PassingControlLine::boundPassable(const ConstLineString3d& bound,
   return true;
 }
 
-PassingControlLine::PassingControlLine(Id id, LineStrings3d controlLine, std::vector<std::string> left_participants,
-                                       std::vector<std::string> right_participants)
-  : RegulatoryElement( id, RuleParameterMap(), {{AttributeNamesString::Type, AttributeValueString::RegulatoryElement},{AttributeNamesString::Subtype, RuleName}})
-  , left_participants_(left_participants.begin(), left_participants.end())
-  , right_participants_(right_participants.begin(), right_participants.end())
-{
+PassingControlLine::PassingControlLine(const lanelet::RegulatoryElementDataPtr& data): RegulatoryElement(data) {
+  // Read participants
+  addParticipantsToSetFromMap(left_participants_, attributes(), FromLeft);
+  addParticipantsToSetFromMap(right_participants_, attributes(), FromRight);
+  addParticipantsToSetFromMap(left_participants_, attributes(), FromBoth);
+  addParticipantsToSetFromMap(right_participants_, attributes(), FromBoth);
+}
 
-  parameters()[lanelet::RoleNameString::RefLine].insert(parameters()[lanelet::RoleNameString::RefLine].end(), controlLine.begin(), controlLine.end());
 
+lanelet::RegulatoryElementDataPtr PassingControlLine::buildData(Id id, LineStrings3d controlLine, std::vector<std::string> left_participants, std::vector<std::string> right_participants) {
+  // Add parameters
+  RuleParameterMap rules;
+
+  rules[lanelet::RoleNameString::RefLine].insert(rules[lanelet::RoleNameString::RefLine].end(), controlLine.begin(), controlLine.end());
+
+  // Add attributes
+  AttributeMap attribute_map({
+    {AttributeNamesString::Type, AttributeValueString::RegulatoryElement},
+    {AttributeNamesString::Subtype, RuleName},
+  });
+
+  for (auto participant : left_participants) {
+    const std::string key= std::string(AttributeNamesString::Participant) + ":" + participant;
+    attribute_map[key] = FromLeft;
+  }
+
+  for (auto participant : right_participants) {
+    const std::string key= std::string(AttributeNamesString::Participant) + ":" + participant;
+    // If this participant is also allowed from the left then add to both
+    if (attribute_map[key].value().compare(FromLeft) == 0) {
+      attribute_map[key] = FromBoth;
+    } else {
+      attribute_map[key] = FromRight;
+    }
+  }
+
+  return std::make_shared<RegulatoryElementData>(id, rules, attribute_map);
 }
 
 // C++ 14 vs 17 parameter export

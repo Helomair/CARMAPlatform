@@ -200,6 +200,7 @@ bool CarmaUSTrafficRules::canChangeLane(const ConstLanelet& from, const ConstLan
   {
     return boundPassable(from.leftBound(), from.regulatoryElementsAs<PassingControlLine>(), false);
   }
+  return false;
 }
 
 Velocity CarmaUSTrafficRules::trafficSignToVelocity(const std::string& typeString) const

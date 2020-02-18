@@ -36,6 +36,9 @@ class PassingControlLine : public RegulatoryElement
 {
 public:
   static constexpr char RuleName[] = "passing_control_line";
+  static constexpr char FromLeft[] = "from_left";
+  static constexpr char FromRight[] = "from_right";
+  static constexpr char FromBoth[] = "from_both";
   std::unordered_set<std::string> left_participants_;
   std::unordered_set<std::string> right_participants_;
 
@@ -85,29 +88,28 @@ public:
   static bool boundPassable(const ConstLineString3d& bound, const std::vector<std::shared_ptr<const PassingControlLine>>& controlLines, bool fromLeft, const std::string& participant);
 
   static bool boundPassable(const ConstLineString3d& bound, const std::vector<std::shared_ptr<PassingControlLine>>& controlLines, bool fromLeft, const std::string& participant);
-
-  // TODO some work might be required to make this loadable from a file
+  
   /**
-   * @brief Constructor takes in an Id and list of contigious line strings that form this PassingControlLine as well as
-   * the sets of participants with access
-   *
-   * If this control line is a lanelet boundary it is expected that each LineString will exactly match the left or right
-   * bound of a lanelet in the map
+   * @brief Constructor defined to support loading from lanelet files
+   */ 
+  explicit PassingControlLine(const lanelet::RegulatoryElementDataPtr& data);
+
+  /**
+   * @brief Static helper function that creates a passing control line data object based on the provided inputs
    *
    * @param id The lanelet::Id of this element
    * @param controlLine The line strings which represent this regularoty elements geometry
    * @param left_participants The set of participants which can cross this line from the left
    * @param right_participants The set of participants which can cross this line from the right
-   *
+   * 
+   * @return RegulatoryElementData containing all the necessary information to construct a passing control line
    */
-  PassingControlLine(Id id, LineStrings3d controlLine, std::vector<std::string> left_participants,
-                     std::vector<std::string> right_participants);
+  static lanelet::RegulatoryElementDataPtr buildData(Id id, LineStrings3d controlLine, std::vector<std::string> left_participants, std::vector<std::string> right_participants);
                      
 protected:
   // the following lines are required so that lanelet2 can create this object when loading a map with this regulatory
   // element
   friend class RegisterRegulatoryElement<PassingControlLine>;
-  explicit PassingControlLine(const lanelet::RegulatoryElementDataPtr& data) : RegulatoryElement(data){};
 };
 
 // Convienace Ptr Declarations

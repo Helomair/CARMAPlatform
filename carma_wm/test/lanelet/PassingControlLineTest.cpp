@@ -44,7 +44,7 @@ TEST(PassingControlLineTest, passingControlLine)
   auto ll_1 = carma_wm::getLanelet(left_1, right_1, lanelet::AttributeValueString::SolidDashed, lanelet::AttributeValueString::Dashed);
 
   // Creat passing control line for solid dashed line
-  std::shared_ptr<PassingControlLine> pcl(new PassingControlLine(lanelet::utils::getId(), {ll_1.leftBound()}, {}, {lanelet::Participants::Vehicle}));
+  std::shared_ptr<PassingControlLine> pcl(new PassingControlLine(PassingControlLine::buildData(lanelet::utils::getId(), {ll_1.leftBound()}, {}, {lanelet::Participants::Vehicle})));
 
   ll_1.addRegulatoryElement(pcl);
 

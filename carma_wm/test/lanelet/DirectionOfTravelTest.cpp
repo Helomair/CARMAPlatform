@@ -45,8 +45,8 @@ TEST(DirectionOfTravelTest, directionOfTravel)
   auto ll_2 = carma_wm::getLanelet(left_1, right_1);
 
   // Creat passing control line for solid dashed line
-  std::shared_ptr<DirectionOfTravel> dot(new DirectionOfTravel(lanelet::utils::getId(), {ll_1}, DirectionOfTravel::OneWay, {lanelet::Participants::Vehicle}));
-  std::shared_ptr<DirectionOfTravel> dotBi(new DirectionOfTravel(lanelet::utils::getId(), {ll_2}, DirectionOfTravel::BiDirectional, {lanelet::Participants::Pedestrian}));
+  std::shared_ptr<DirectionOfTravel> dot(new DirectionOfTravel(DirectionOfTravel::buildData(lanelet::utils::getId(), {ll_1}, DirectionOfTravel::OneWay, {lanelet::Participants::Vehicle})));
+  std::shared_ptr<DirectionOfTravel> dotBi(new DirectionOfTravel(DirectionOfTravel::buildData(lanelet::utils::getId(), {ll_2}, DirectionOfTravel::BiDirectional, {lanelet::Participants::Pedestrian})));
 
   ll_1.addRegulatoryElement(dot);
   ll_2.addRegulatoryElement(dotBi);

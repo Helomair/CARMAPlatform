@@ -203,16 +203,16 @@ PassingControlLinePtr buildControlLine(LineString3d& bound, const LaneChangeType
     {
       case LaneChangeType::ToRight:
         return std::shared_ptr<PassingControlLine>(
-            new PassingControlLine(lanelet::utils::getId(), { bound.invert() }, {}, { participant }));
+            new PassingControlLine(PassingControlLine::buildData(lanelet::utils::getId(), { bound.invert() }, {}, { participant })));
       case LaneChangeType::ToLeft:
         return std::shared_ptr<PassingControlLine>(
-            new PassingControlLine(lanelet::utils::getId(), { bound.invert() }, { participant }, {}));
+            new PassingControlLine(PassingControlLine::buildData(lanelet::utils::getId(), { bound.invert() }, { participant }, {})));
       case LaneChangeType::Both:
         return std::shared_ptr<PassingControlLine>(
-            new PassingControlLine(lanelet::utils::getId(), { bound.invert() }, { participant }, { participant }));
+            new PassingControlLine(PassingControlLine::buildData(lanelet::utils::getId(), { bound.invert() }, { participant }, { participant })));
       default: // LaneChangeType::None
         return std::shared_ptr<PassingControlLine>(
-            new PassingControlLine(lanelet::utils::getId(), { bound.invert() }, {}, {}));
+            new PassingControlLine(PassingControlLine::buildData(lanelet::utils::getId(), { bound.invert() }, {}, {})));
     }
   }
   else
@@ -221,15 +221,15 @@ PassingControlLinePtr buildControlLine(LineString3d& bound, const LaneChangeType
     {
       case LaneChangeType::ToRight:
         return std::shared_ptr<PassingControlLine>(
-            new PassingControlLine(lanelet::utils::getId(), { bound }, { participant }, {}));
+            new PassingControlLine(PassingControlLine::buildData(lanelet::utils::getId(), { bound }, { participant }, {})));
       case LaneChangeType::ToLeft:
         return std::shared_ptr<PassingControlLine>(
-            new PassingControlLine(lanelet::utils::getId(), { bound }, {}, { participant }));
+            new PassingControlLine(PassingControlLine::buildData(lanelet::utils::getId(), { bound }, {}, { participant })));
       case LaneChangeType::Both:
         return std::shared_ptr<PassingControlLine>(
-            new PassingControlLine(lanelet::utils::getId(), { bound }, { participant }, { participant }));
+            new PassingControlLine(PassingControlLine::buildData(lanelet::utils::getId(), { bound }, { participant }, { participant })));
       default: // LaneChangeType::None
-        return std::shared_ptr<PassingControlLine>(new PassingControlLine(lanelet::utils::getId(), { bound }, {}, {}));
+        return std::shared_ptr<PassingControlLine>(new PassingControlLine(PassingControlLine::buildData(lanelet::utils::getId(), { bound }, {}, {})));
     }
   }
 }
@@ -461,7 +461,7 @@ void addInferredDirectionOfTravel(Lanelet& lanelet, lanelet::LaneletMapPtr map, 
 
     if (allowed_participants.size() > 0) { // Only add bi-directional regulations
       std::shared_ptr<DirectionOfTravel> rar(
-          new DirectionOfTravel(lanelet::utils::getId(), { lanelet }, DirectionOfTravel::BiDirectional, allowed_participants));
+          new DirectionOfTravel(DirectionOfTravel::buildData(lanelet::utils::getId(), { lanelet }, DirectionOfTravel::BiDirectional, allowed_participants)));
       lanelet.addRegulatoryElement(rar);
       map->add(rar);
     }

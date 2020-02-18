@@ -68,7 +68,7 @@ TEST(DigitalSpeedLimit, digitalSpeedLimit)
   area.attributes()[lanelet::AttributeName::Location] = lanelet::AttributeValueString::Urban;
   area.attributes()[lanelet::AttributeNamesString::ParticipantVehicle] = "yes";
 
-  DigitalSpeedLimit dsl(DigitalSpeedLimit::buildData(lanelet::utils::getId(), 5_mph, {ll_1, ll_2}, {area}, {lanelet::Participants::VehicleCar}));
+  DigitalSpeedLimit dsl(DigitalSpeedLimit::buildData(lanelet::utils::getId(), 5_kmh, {ll_1, ll_2}, {area}, {lanelet::Participants::VehicleCar}));
 
   ASSERT_EQ(2, dsl.getLanelets().size());
   ASSERT_EQ(1, dsl.getAreas().size());
@@ -76,11 +76,7 @@ TEST(DigitalSpeedLimit, digitalSpeedLimit)
   ASSERT_TRUE(dsl.appliesTo(lanelet::Participants::VehicleCar));
   ASSERT_TRUE(dsl.appliesTo(lanelet::Participants::VehicleCarElectric)); // Test acceptance of sub type
 
-  ASSERT_EQ(5_mph, dsl.getSpeedLimit());
-
-  dsl.setSpeedLimit(7_mph);
-
-  ASSERT_EQ(7_mph, dsl.getSpeedLimit());
+  ASSERT_EQ(5_kmh, dsl.getSpeedLimit());
 
 }
 

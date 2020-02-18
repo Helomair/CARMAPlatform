@@ -61,13 +61,6 @@ public:
   Velocity getSpeedLimit() const;
 
   /**
-   * @brief Sets the speed limit defined by this regulation
-   *
-   * @param The speed limit as a velocity object
-   */
-  void setSpeedLimit(Velocity speed_limit);
-
-  /**
    * @brief Returns true if the given participant must follow this speed limit
    *
    * @return True if this speed limit should apply to the given participant
