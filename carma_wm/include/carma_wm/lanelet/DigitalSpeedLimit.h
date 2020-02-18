@@ -16,6 +16,7 @@
  */
 #include <lanelet2_core/primitives/RegulatoryElement.h>
 #include <boost/algorithm/string.hpp>
+#include <lanelet2_core/utility/Units.h>
 #include <unordered_set>
 
 namespace lanelet
@@ -34,7 +35,8 @@ class DigitalSpeedLimit : public RegulatoryElement
 {
 public:
   static constexpr char RuleName[] = "digital_speed_limit";
-  Velocity speed_limit_;
+  static constexpr char Limit[] = "limit";
+  Velocity speed_limit_ = 0;
   std::unordered_set<std::string> participants_;
 
   /**
@@ -72,9 +74,8 @@ public:
    */
   bool appliesTo(const std::string& participant) const;
 
-  // TODO some work might be required to make this loadable from a file
   /**
-   * @brief Constructor creates a speed limit based on the provided velocity, start, end lines, and the affected
+   * @brief Static helper function that creates a speed limit based on the provided velocity, start, end lines, and the affected
    * participants
    *
    * @param id The lanelet::Id of this object
@@ -82,15 +83,23 @@ public:
    * @param lanelets The lanelets this speed limit applies to
    * @param areas The areas this speed limit applies to
    * @param participants The set of participants which this speed limit will apply to
+   * 
+   * @return RegulatoryElementData containing all the necessary information to construct a speed limit element
    */
-  DigitalSpeedLimit(Id id, Velocity speed_limit, Lanelets lanelets, Areas areas,
+  static lanelet::RegulatoryElementDataPtr buildData(Id id, Velocity speed_limit, Lanelets lanelets, Areas areas,
                     std::vector<std::string> participants);
+
+  /**
+   * @brief Constructor required for compatability with lanlet2 loading
+   * 
+   * @param data The data to initialize this regulation with
+   */ 
+  explicit DigitalSpeedLimit(const lanelet::RegulatoryElementDataPtr& data);
 
 protected:
   // the following lines are required so that lanelet2 can create this object when loading a map with this regulatory
   // element
   friend class RegisterRegulatoryElement<DigitalSpeedLimit>;
-  explicit DigitalSpeedLimit(const lanelet::RegulatoryElementDataPtr& data) : RegulatoryElement(data){};
 };
 
 // Convienace Ptr Declarations

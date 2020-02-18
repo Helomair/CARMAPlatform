@@ -33,34 +33,6 @@ using ::testing::ReturnArg;
 namespace lanelet
 {
 
-  // bool canPass(const ConstLanelet& lanelet) const override;
-
-  // bool canPass(const ConstArea& area) const override;
-
-  // /**
-  //  * NOTE: Based on the implementation found in the GenericTrafficRules class this function is for non-lanechange passing. (Proceeding into another lanelet)
-  //  */
-  // bool canPass(const ConstLanelet& from, const ConstLanelet& to) const override;
-
-  // bool canPass(const ConstLanelet& from, const ConstArea& to) const override;
-
-  // bool canPass(const ConstArea& from, const ConstLanelet& to) const override;
-
-  // bool canPass(const ConstArea& from, const ConstArea& to) const override;
-
-  // bool canChangeLane(const ConstLanelet& from, const ConstLanelet& to) const override;
-
-  // SpeedLimitInformation speedLimit(const ConstLanelet& lanelet) const override;
-
-  // SpeedLimitInformation speedLimit(const ConstArea& area) const override;
-
-  // bool isOneWay(const ConstLanelet& lanelet) const override;
-
-  // /**
-  //  * @brief NOTE: This function always returns true as all elements in CARMA can contain dynamic rules there is never a reason to assume otherwise
-  //  */ 
-  // bool hasDynamicRules(const ConstLanelet& lanelet) const override;
-
 using namespace lanelet::units::literals;
 
 TEST(CarmaUSTrafficRules, carmaUSTrafficRules)
@@ -76,13 +48,13 @@ TEST(CarmaUSTrafficRules, carmaUSTrafficRules)
   Area area = *(map->areaLayer.find(10004));
 
   // 1. Set speed limit for all 3 lanelets to 25
-  std::shared_ptr<DigitalSpeedLimit> dsl_lanelet(new DigitalSpeedLimit(lanelet::utils::getId(), 25_mph, {ll_1, ll_2, ll_3, ll_4}, {}, {lanelet::Participants::Vehicle}));
+  std::shared_ptr<DigitalSpeedLimit> dsl_lanelet(new DigitalSpeedLimit(DigitalSpeedLimit::buildData(lanelet::utils::getId(), 25_mph, {ll_1, ll_2, ll_3, ll_4}, {}, {lanelet::Participants::Vehicle})));
   ll_1.addRegulatoryElement(dsl_lanelet);
   ll_2.addRegulatoryElement(dsl_lanelet);
   ll_3.addRegulatoryElement(dsl_lanelet);
   ll_4.addRegulatoryElement(dsl_lanelet);
   // 2. set speed limit for area to 20
-  std::shared_ptr<DigitalSpeedLimit> dsl_area(new DigitalSpeedLimit(lanelet::utils::getId(), 20_mph, {}, {area}, {lanelet::Participants::Vehicle}));
+  std::shared_ptr<DigitalSpeedLimit> dsl_area(new DigitalSpeedLimit(DigitalSpeedLimit::buildData(lanelet::utils::getId(), 20_mph, {}, {area}, {lanelet::Participants::Vehicle})));
   area.addRegulatoryElement(dsl_area);
   // 3. set lanelet passable by vehicle
   std::shared_ptr<RegionAccessRule> rar_lanelet(new RegionAccessRule(lanelet::utils::getId(), {ll_1, ll_2, ll_3, ll_4}, {}, {lanelet::Participants::Vehicle}));
@@ -175,9 +147,6 @@ TEST(CarmaUSTrafficRules, carmaUSTrafficRules)
   ASSERT_TRUE(traffic_rules->isOneWay(ll_3));
   ASSERT_FALSE(traffic_rules->isOneWay(ll_4));
 
-  // /**
-  //  * @brief NOTE: This function always returns true as all elements in CARMA can contain dynamic rules there is never a reason to assume otherwise
-  //  */ 
   // bool hasDynamicRules(const ConstLanelet& lanelet) const override;
   ASSERT_TRUE(traffic_rules->hasDynamicRules(ll_1));
 

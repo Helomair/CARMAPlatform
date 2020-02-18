@@ -68,7 +68,7 @@ TEST(DigitalSpeedLimit, digitalSpeedLimit)
   area.attributes()[lanelet::AttributeName::Location] = lanelet::AttributeValueString::Urban;
   area.attributes()[lanelet::AttributeNamesString::ParticipantVehicle] = "yes";
 
-  DigitalSpeedLimit dsl(lanelet::utils::getId(), 5_mph, {ll_1, ll_2}, {area}, {lanelet::Participants::VehicleCar});
+  DigitalSpeedLimit dsl(DigitalSpeedLimit::buildData(lanelet::utils::getId(), 5_mph, {ll_1, ll_2}, {area}, {lanelet::Participants::VehicleCar}));
 
   ASSERT_EQ(2, dsl.getLanelets().size());
   ASSERT_EQ(1, dsl.getAreas().size());

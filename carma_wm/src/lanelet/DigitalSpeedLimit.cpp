@@ -21,6 +21,9 @@
 namespace lanelet
 {
 
+// Forward declare static constexpr
+constexpr char DigitalSpeedLimit::Limit[];
+
 ConstLanelets DigitalSpeedLimit::getLanelets() const
 {
   return getParameters<ConstLanelet>(RoleName::Refers);
@@ -46,16 +49,38 @@ bool DigitalSpeedLimit::appliesTo(const std::string& participant) const
   return setContainsParticipant(participants_, participant);
 }
 
-// TODO some work might be required to make this loadable from a file
-DigitalSpeedLimit::DigitalSpeedLimit(Id id, Velocity speed_limit, Lanelets lanelets, Areas areas,
-                                     std::vector<std::string> participants)
-  : RegulatoryElement( id, RuleParameterMap(), {{AttributeNamesString::Type, AttributeValueString::RegulatoryElement},{AttributeNamesString::Subtype, RuleName}})
-  , speed_limit_(speed_limit)
-  , participants_(participants.begin(), participants.end())
-{
+DigitalSpeedLimit::DigitalSpeedLimit(const lanelet::RegulatoryElementDataPtr& data) : RegulatoryElement(data) {
+  
+  // Read participants
+  addParticipantsToSetFromMap(participants_, attributes());
+  
+  // Read speed limit
+  auto optional_speed_limit = attribute(Limit).asVelocity();
+  std::cerr << "Limit: " << *optional_speed_limit << std::endl;
+  std::cerr << "Key: " << Limit << std::endl;
+  //TODO here issue in unit test
 
-  parameters()[lanelet::RoleNameString::Refers].insert(parameters()[lanelet::RoleNameString::Refers].end(), lanelets.begin(), lanelets.end());
-  parameters()[lanelet::RoleNameString::Refers].insert(parameters()[lanelet::RoleNameString::Refers].end(), areas.begin(), areas.end());
+  if (!optional_speed_limit) {
+    throw std::invalid_argument("Limit attribute of DigitalSpeedLimit regulatory element is not set or cannot be read ");
+  }
+
+  speed_limit_ = *optional_speed_limit;
+}
+
+lanelet::RegulatoryElementDataPtr DigitalSpeedLimit::buildData(Id id, Velocity speed_limit, Lanelets lanelets, Areas areas,
+                  std::vector<std::string> participants) {
+
+  RuleParameterMap rules;
+  rules[lanelet::RoleNameString::Refers].insert(rules[lanelet::RoleNameString::Refers].end(), lanelets.begin(), lanelets.end());
+  rules[lanelet::RoleNameString::Refers].insert(rules[lanelet::RoleNameString::Refers].end(), areas.begin(), areas.end());
+
+  AttributeMap attribute_map({
+    {AttributeNamesString::Type, AttributeValueString::RegulatoryElement},
+    {AttributeNamesString::Subtype, RuleName},
+    {Limit, Attribute(speed_limit).value()}
+  });
+
+  return std::make_shared<RegulatoryElementData>(id, rules, attribute_map);
 }
 
 // C++ 14 vs 17 constant defintion
