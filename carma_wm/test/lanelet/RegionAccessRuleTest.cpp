@@ -65,7 +65,7 @@ TEST(RegionAccessRuleTest, regionAccessRule)
   area.attributes()[lanelet::AttributeName::Location] = lanelet::AttributeValueString::Urban;
   area.attributes()[lanelet::AttributeNamesString::ParticipantVehicle] = "yes";
 
-  RegionAccessRule rar(lanelet::utils::getId(), {ll_1, ll_2}, {area}, {lanelet::Participants::VehicleCar});
+  RegionAccessRule rar(RegionAccessRule::buildData(lanelet::utils::getId(), {ll_1, ll_2}, {area}, {lanelet::Participants::VehicleCar}));
 
   ASSERT_EQ(2, rar.getLanelets().size());
   ASSERT_EQ(1, rar.getAreas().size());

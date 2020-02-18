@@ -258,7 +258,7 @@ void addInferredAccessRule(Lanelet& lanelet, lanelet::LaneletMapPtr map, const s
     }
 
     std::shared_ptr<RegionAccessRule> rar(
-        new RegionAccessRule(lanelet::utils::getId(), { lanelet }, {}, allowed_participants));
+        new RegionAccessRule(RegionAccessRule::buildData(lanelet::utils::getId(), { lanelet }, {}, allowed_participants)));
     lanelet.addRegulatoryElement(rar);
     map->add(rar);
   }
@@ -288,7 +288,7 @@ void addInferredAccessRule(Area& area, lanelet::LaneletMapPtr map, const std::ve
     }
 
     std::shared_ptr<RegionAccessRule> rar(
-        new RegionAccessRule(lanelet::utils::getId(), {}, {area}, allowed_participants));
+        new RegionAccessRule(RegionAccessRule::buildData(lanelet::utils::getId(), {}, {area}, allowed_participants)));
     area.addRegulatoryElement(rar);
     map->add(rar);
   }

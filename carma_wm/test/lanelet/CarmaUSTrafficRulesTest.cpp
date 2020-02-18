@@ -57,13 +57,13 @@ TEST(CarmaUSTrafficRules, carmaUSTrafficRules)
   std::shared_ptr<DigitalSpeedLimit> dsl_area(new DigitalSpeedLimit(DigitalSpeedLimit::buildData(lanelet::utils::getId(), 20_kmh, {}, {area}, {lanelet::Participants::Vehicle})));
   area.addRegulatoryElement(dsl_area);
   // 3. set lanelet passable by vehicle
-  std::shared_ptr<RegionAccessRule> rar_lanelet(new RegionAccessRule(lanelet::utils::getId(), {ll_1, ll_2, ll_3, ll_4}, {}, {lanelet::Participants::Vehicle}));
+  std::shared_ptr<RegionAccessRule> rar_lanelet(new RegionAccessRule(RegionAccessRule::buildData(lanelet::utils::getId(), {ll_1, ll_2, ll_3, ll_4}, {}, {lanelet::Participants::Vehicle})));
   ll_1.addRegulatoryElement(rar_lanelet);
   ll_2.addRegulatoryElement(rar_lanelet);
   ll_3.addRegulatoryElement(rar_lanelet);
   ll_4.addRegulatoryElement(rar_lanelet);
   // 4. set area passable by car
-  std::shared_ptr<RegionAccessRule> rar_area(new RegionAccessRule(lanelet::utils::getId(), {}, {area}, {lanelet::Participants::VehicleCar}));
+  std::shared_ptr<RegionAccessRule> rar_area(new RegionAccessRule(RegionAccessRule::buildData(lanelet::utils::getId(), {}, {area}, {lanelet::Participants::VehicleCar})));
   area.addRegulatoryElement(rar_area);
   // 5. set direction of travel for first two lanelets to one way.
   std::shared_ptr<DirectionOfTravel> dot_oneway(new DirectionOfTravel(DirectionOfTravel::buildData(lanelet::utils::getId(), {ll_1, ll_2, ll_3}, DirectionOfTravel::OneWay, {lanelet::Participants::Vehicle})));

@@ -60,24 +60,29 @@ public:
    */
   bool accessable(const std::string& participant) const;
 
-  // TODO some work might be required to make this loadable from a file
+  /**
+   * @brief Constructor defined to support loading from lanelet files
+   */ 
+  explicit RegionAccessRule(const lanelet::RegulatoryElementDataPtr& data);
 
   /**
-   * @brief Constructor creates an access rule for the provided lanelets, areas, and participants
+   * @brief Static helper function that creates a region access rule data object based on the provided inputs
    *
    * @param id The lanelet::Id to give this regulation
    * @param lanelets The lanelets impacted by this regulation
    * @param areas The areas impacted by this regulation
    * @param participants The participants which can access the provided lanelets and areas
+   * 
+   * @return RegulatoryElementData containing all the necessary information to construct a region access rule object
    */
-  RegionAccessRule(Id id, Lanelets lanelets, Areas areas, std::vector<std::string> participants);
+  static lanelet::RegulatoryElementDataPtr buildData(Id id, Lanelets lanelets, Areas areas, std::vector<std::string> participants);
+
 
 protected:
 
   // the following lines are required so that lanelet2 can create this object when loading a map with this regulatory
   // element
   friend class RegisterRegulatoryElement<RegionAccessRule>;
-  explicit RegionAccessRule(const lanelet::RegulatoryElementDataPtr& data) : RegulatoryElement(data){};
 };
 
 // Convienace Ptr Declarations

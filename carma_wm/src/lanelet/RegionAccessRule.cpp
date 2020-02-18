@@ -39,14 +39,30 @@ bool RegionAccessRule::accessable(const std::string& participant) const
   return setContainsParticipant(participants_, participant);
 }
 
-RegionAccessRule::RegionAccessRule(Id id, Lanelets lanelets, Areas areas, std::vector<std::string> participants)
-  : RegulatoryElement( id, RuleParameterMap(), {{AttributeNamesString::Type, AttributeValueString::RegulatoryElement},{AttributeNamesString::Subtype, RuleName}})
-  , participants_(participants.begin(), participants.end())
-{
+RegionAccessRule::RegionAccessRule(const lanelet::RegulatoryElementDataPtr& data) : RegulatoryElement(data) {
+  // Read participants
+  addParticipantsToSetFromMap(participants_, attributes());
+}
 
-  parameters()[lanelet::RoleNameString::Refers].insert(parameters()[lanelet::RoleNameString::Refers].end(), lanelets.begin(), lanelets.end());
-  parameters()[lanelet::RoleNameString::Refers].insert(parameters()[lanelet::RoleNameString::Refers].end(), areas.begin(), areas.end());
+lanelet::RegulatoryElementDataPtr RegionAccessRule::buildData(Id id, Lanelets lanelets, Areas areas, std::vector<std::string> participants) {
+  // Add parameters
+  RuleParameterMap rules;
 
+  rules[lanelet::RoleNameString::Refers].insert(rules[lanelet::RoleNameString::Refers].end(), lanelets.begin(), lanelets.end());
+  rules[lanelet::RoleNameString::Refers].insert(rules[lanelet::RoleNameString::Refers].end(), areas.begin(), areas.end());
+
+  // Add attributes
+  AttributeMap attribute_map({
+    {AttributeNamesString::Type, AttributeValueString::RegulatoryElement},
+    {AttributeNamesString::Subtype, RuleName}
+  });
+
+  for (auto participant : participants) {
+    const std::string key= std::string(AttributeNamesString::Participant) + ":" + participant;
+    attribute_map[key] = "yes";
+  }
+
+  return std::make_shared<RegulatoryElementData>(id, rules, attribute_map);
 }
 
 // C++ 14 vs 17 constent definition
