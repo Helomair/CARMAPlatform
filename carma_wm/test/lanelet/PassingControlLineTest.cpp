@@ -31,7 +31,6 @@ using ::testing::ReturnArg;
 
 namespace lanelet
 {
-
 TEST(PassingControlLineTest, passingControlLine)
 {
   auto pl1 = carma_wm::getPoint(0, 0, 0);
@@ -41,10 +40,12 @@ TEST(PassingControlLineTest, passingControlLine)
 
   std::vector<lanelet::Point3d> left_1 = { pl1, pl2 };
   std::vector<lanelet::Point3d> right_1 = { pr1, pr2 };
-  auto ll_1 = carma_wm::getLanelet(left_1, right_1, lanelet::AttributeValueString::SolidDashed, lanelet::AttributeValueString::Dashed);
+  auto ll_1 = carma_wm::getLanelet(left_1, right_1, lanelet::AttributeValueString::SolidDashed,
+                                   lanelet::AttributeValueString::Dashed);
 
   // Creat passing control line for solid dashed line
-  std::shared_ptr<PassingControlLine> pcl(new PassingControlLine(PassingControlLine::buildData(lanelet::utils::getId(), {ll_1.leftBound()}, {}, {lanelet::Participants::Vehicle})));
+  std::shared_ptr<PassingControlLine> pcl(new PassingControlLine(PassingControlLine::buildData(
+      lanelet::utils::getId(), { ll_1.leftBound() }, {}, { lanelet::Participants::Vehicle })));
 
   ll_1.addRegulatoryElement(pcl);
 
@@ -52,14 +53,21 @@ TEST(PassingControlLineTest, passingControlLine)
   ASSERT_EQ(1, nonconstLine.size());
 
   ASSERT_FALSE(pcl->passableFromLeft(lanelet::Participants::Vehicle));
-  ASSERT_TRUE(pcl->passableFromRight(lanelet::Participants::Vehicle));;
+  ASSERT_TRUE(pcl->passableFromRight(lanelet::Participants::Vehicle));
+  ;
 
-  ASSERT_FALSE(PassingControlLine::boundPassable(ll_1.leftBound(), ll_1.regulatoryElementsAs<PassingControlLine>(), true, lanelet::Participants::Vehicle));
-  ASSERT_TRUE(PassingControlLine::boundPassable(ll_1.leftBound(), ll_1.regulatoryElementsAs<PassingControlLine>(), false, lanelet::Participants::Vehicle));
+  ASSERT_FALSE(PassingControlLine::boundPassable(ll_1.leftBound(), ll_1.regulatoryElementsAs<PassingControlLine>(),
+                                                 true, lanelet::Participants::Vehicle));
+  ASSERT_TRUE(PassingControlLine::boundPassable(ll_1.leftBound(), ll_1.regulatoryElementsAs<PassingControlLine>(),
+                                                false, lanelet::Participants::Vehicle));
 
   // Check inverted bound
-  ASSERT_TRUE(PassingControlLine::boundPassable(ll_1.leftBound().invert(), ll_1.regulatoryElementsAs<PassingControlLine>(), true, lanelet::Participants::Vehicle));
-  ASSERT_FALSE(PassingControlLine::boundPassable(ll_1.leftBound().invert(), ll_1.regulatoryElementsAs<PassingControlLine>(), false, lanelet::Participants::Vehicle));
+  ASSERT_TRUE(PassingControlLine::boundPassable(ll_1.leftBound().invert(),
+                                                ll_1.regulatoryElementsAs<PassingControlLine>(), true,
+                                                lanelet::Participants::Vehicle));
+  ASSERT_FALSE(PassingControlLine::boundPassable(ll_1.leftBound().invert(),
+                                                 ll_1.regulatoryElementsAs<PassingControlLine>(), false,
+                                                 lanelet::Participants::Vehicle));
 }
 
 }  // namespace lanelet

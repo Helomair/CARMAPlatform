@@ -850,27 +850,26 @@ TEST(CARMAWorldModelTest, getTrafficRules)
   addStraightRoute(cmw);
 
   auto default_participant = cmw.getTrafficRules();
-  ASSERT_TRUE(!!default_participant); // Verify traffic rules object was returned
+  ASSERT_TRUE(!!default_participant);  // Verify traffic rules object was returned
   ASSERT_EQ(lanelet::Participants::Vehicle, (*default_participant)->participant());
 
   default_participant = cmw.getTrafficRules(lanelet::Participants::VehicleCar);
-  ASSERT_TRUE(!!default_participant); 
+  ASSERT_TRUE(!!default_participant);
   ASSERT_EQ(lanelet::Participants::VehicleCar, (*default_participant)->participant());
 
   default_participant = cmw.getTrafficRules(lanelet::Participants::VehicleTruck);
-  ASSERT_TRUE(!!default_participant); 
+  ASSERT_TRUE(!!default_participant);
   ASSERT_EQ(lanelet::Participants::VehicleTruck, (*default_participant)->participant());
 
   default_participant = cmw.getTrafficRules(lanelet::Participants::Pedestrian);
-  ASSERT_TRUE(!!default_participant); 
+  ASSERT_TRUE(!!default_participant);
   ASSERT_EQ(lanelet::Participants::Pedestrian, (*default_participant)->participant());
 
   default_participant = cmw.getTrafficRules(lanelet::Participants::Bicycle);
-  ASSERT_TRUE(!!default_participant); 
+  ASSERT_TRUE(!!default_participant);
   ASSERT_EQ(lanelet::Participants::Bicycle, (*default_participant)->participant());
 
   default_participant = cmw.getTrafficRules("fake_person");
-  ASSERT_FALSE(!!default_participant); 
-
+  ASSERT_FALSE(!!default_participant);
 }
 }  // namespace carma_wm

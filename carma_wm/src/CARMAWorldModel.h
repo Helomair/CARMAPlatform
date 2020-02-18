@@ -27,8 +27,9 @@ namespace carma_wm
  *
  *  Proper usage of this class dictates that the Map and Route object be kept in sync
  *
- * NOTE: This class uses the CarmaUSTrafficRules class internally to interpret routes. 
- *       So routes which are set on this model should use the getTrafficRules() method to build using the correct rule set
+ * NOTE: This class uses the CarmaUSTrafficRules class internally to interpret routes.
+ *       So routes which are set on this model should use the getTrafficRules() method to build using the correct rule
+ * set
  */
 class CARMAWorldModel : public WorldModel
 {
@@ -90,7 +91,8 @@ public:
 
   double getAngleBetweenVectors(const Eigen::Vector2d& vec1, const Eigen::Vector2d& vec2) const override;
 
-  lanelet::Optional<TrafficRulesConstPtr> getTrafficRules(const std::string& participant=lanelet::Participants::Vehicle) const override;
+  lanelet::Optional<TrafficRulesConstPtr>
+  getTrafficRules(const std::string& participant = lanelet::Participants::Vehicle) const override;
 
 private:
   /*! \brief Helper function to compute the geometry of the route downtrack/crosstrack reference line

@@ -18,9 +18,13 @@
 
 namespace lanelet
 {
+// C++ 14 vs 17 parameter export
+#if __cplusplus < 201703L
+constexpr char PassingControlLine::RuleName[];  // instantiate string in cpp file
 constexpr char PassingControlLine::FromLeft[];
 constexpr char PassingControlLine::FromRight[];
 constexpr char PassingControlLine::FromBoth[];
+#endif
 
 ConstLineStrings3d PassingControlLine::controlLine() const
 {
@@ -42,13 +46,16 @@ bool PassingControlLine::passableFromRight(const std::string& participant) const
   return setContainsParticipant(right_participants_, participant);
 }
 
-bool PassingControlLine::boundPassable(const ConstLineString3d& bound, const std::vector<std::shared_ptr<PassingControlLine>>& controlLines, bool fromLeft, const std::string& participant) {
-  return boundPassable(bound,  utils::transformSharedPtr<const PassingControlLine>(controlLines), fromLeft, participant);
+bool PassingControlLine::boundPassable(const ConstLineString3d& bound,
+                                       const std::vector<std::shared_ptr<PassingControlLine>>& controlLines,
+                                       bool fromLeft, const std::string& participant)
+{
+  return boundPassable(bound, utils::transformSharedPtr<const PassingControlLine>(controlLines), fromLeft, participant);
 }
 
 bool PassingControlLine::boundPassable(const ConstLineString3d& bound,
-                          const std::vector<std::shared_ptr<const PassingControlLine>>& controlLines, bool fromLeft,
-                          const std::string& participant)
+                                       const std::vector<std::shared_ptr<const PassingControlLine>>& controlLines,
+                                       bool fromLeft, const std::string& participant)
 {
   for (auto control_line : controlLines)
   {
@@ -70,7 +77,8 @@ bool PassingControlLine::boundPassable(const ConstLineString3d& bound,
   return true;
 }
 
-PassingControlLine::PassingControlLine(const lanelet::RegulatoryElementDataPtr& data): RegulatoryElement(data) {
+PassingControlLine::PassingControlLine(const lanelet::RegulatoryElementDataPtr& data) : RegulatoryElement(data)
+{
   // Read participants
   addParticipantsToSetFromMap(left_participants_, attributes(), FromLeft);
   addParticipantsToSetFromMap(right_participants_, attributes(), FromRight);
@@ -78,41 +86,44 @@ PassingControlLine::PassingControlLine(const lanelet::RegulatoryElementDataPtr& 
   addParticipantsToSetFromMap(right_participants_, attributes(), FromBoth);
 }
 
-
-lanelet::RegulatoryElementDataPtr PassingControlLine::buildData(Id id, LineStrings3d controlLine, std::vector<std::string> left_participants, std::vector<std::string> right_participants) {
+lanelet::RegulatoryElementDataPtr PassingControlLine::buildData(Id id, LineStrings3d controlLine,
+                                                                std::vector<std::string> left_participants,
+                                                                std::vector<std::string> right_participants)
+{
   // Add parameters
   RuleParameterMap rules;
 
-  rules[lanelet::RoleNameString::RefLine].insert(rules[lanelet::RoleNameString::RefLine].end(), controlLine.begin(), controlLine.end());
+  rules[lanelet::RoleNameString::RefLine].insert(rules[lanelet::RoleNameString::RefLine].end(), controlLine.begin(),
+                                                 controlLine.end());
 
   // Add attributes
   AttributeMap attribute_map({
-    {AttributeNamesString::Type, AttributeValueString::RegulatoryElement},
-    {AttributeNamesString::Subtype, RuleName},
+      { AttributeNamesString::Type, AttributeValueString::RegulatoryElement },
+      { AttributeNamesString::Subtype, RuleName },
   });
 
-  for (auto participant : left_participants) {
-    const std::string key= std::string(AttributeNamesString::Participant) + ":" + participant;
+  for (auto participant : left_participants)
+  {
+    const std::string key = std::string(AttributeNamesString::Participant) + ":" + participant;
     attribute_map[key] = FromLeft;
   }
 
-  for (auto participant : right_participants) {
-    const std::string key= std::string(AttributeNamesString::Participant) + ":" + participant;
+  for (auto participant : right_participants)
+  {
+    const std::string key = std::string(AttributeNamesString::Participant) + ":" + participant;
     // If this participant is also allowed from the left then add to both
-    if (attribute_map[key].value().compare(FromLeft) == 0) {
+    if (attribute_map[key].value().compare(FromLeft) == 0)
+    {
       attribute_map[key] = FromBoth;
-    } else {
+    }
+    else
+    {
       attribute_map[key] = FromRight;
     }
   }
 
   return std::make_shared<RegulatoryElementData>(id, rules, attribute_map);
 }
-
-// C++ 14 vs 17 parameter export
-#if __cplusplus < 201703L
-constexpr char PassingControlLine::RuleName[];  // instantiate string in cpp file
-#endif
 
 namespace
 {

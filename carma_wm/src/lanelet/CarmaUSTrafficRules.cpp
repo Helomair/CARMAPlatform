@@ -32,23 +32,25 @@
 namespace lanelet
 {
 namespace traffic_rules
-{ 
-constexpr char CarmaUSTrafficRules::Location[]; // Forward declare Location string
+{
+constexpr char CarmaUSTrafficRules::Location[];  // Forward declare Location string
 /**
- * @brief Helper function for determining the common line between a lanelet and area. 
- * Based on the same function in lanelet2_traffic_rules/GenericTrafficRules.cpp. Copied here as it is not exposed by that library
- */ 
+ * @brief Helper function for determining the common line between a lanelet and area.
+ * Based on the same function in lanelet2_traffic_rules/GenericTrafficRules.cpp. Copied here as it is not exposed by
+ * that library
+ */
 Optional<ConstLineString3d> determineCommonLine(const ConstLanelet& ll, const ConstArea& ar)
 {
   return utils::findIf(ar.outerBound(), [p1 = ll.leftBound().back(), p2 = ll.rightBound().back()](auto& boundLs) {
-    return (boundLs.back() == p1 && boundLs.front() == p2); 
+    return (boundLs.back() == p1 && boundLs.front() == p2);
   });
 }
 
 /**
- * @brief Helper function for determining the common line between a lanelet and area. 
- * Based on the same function in lanelet2_traffic_rules/GenericTrafficRules.cpp. Copied here as it is not exposed by that library.
- */ 
+ * @brief Helper function for determining the common line between a lanelet and area.
+ * Based on the same function in lanelet2_traffic_rules/GenericTrafficRules.cpp. Copied here as it is not exposed by
+ * that library.
+ */
 Optional<ConstLineString3d> determineCommonLine(const ConstArea& ar1, const ConstArea& ar2)
 {
   return utils::findIf(ar1.outerBound(), [&ar2](auto& ar1Bound) {
@@ -58,22 +60,32 @@ Optional<ConstLineString3d> determineCommonLine(const ConstArea& ar1, const Cons
 }
 
 /**
- * @brief Helper function for determining the travel direction of a lanelet. 
- */ 
-bool canTravelInDir(const lanelet::ConstLanelet& ll, const std::string& participant) {
-  if (!ll.inverted()) {
-    return true; // If this lanelet is not inverted then one-way or bi-directional are both fine
+ * @brief Helper function for determining the travel direction of a lanelet.
+ */
+bool canTravelInDir(const lanelet::ConstLanelet& ll, const std::string& participant)
+{
+  if (!ll.inverted())
+  {
+    return true;  // If this lanelet is not inverted then one-way or bi-directional are both fine
   }
 
   auto regs = ll.regulatoryElementsAs<DirectionOfTravel>();
 
-  if (regs.size() == 0) {
-    return false; // Default to one way. So if there is no regulation then return false (only allow oneway)
-  } else if (regs.size() == 1){
+  if (regs.size() == 0)
+  {
+    return false;  // Default to one way. So if there is no regulation then return false (only allow oneway)
+  }
+  else if (regs.size() == 1)
+  {
     // Add logic
-    return !(regs[0]->isOneWay()) && regs[0]->appliesTo(participant); // If there is a regulation return true if bi-directional
-  } else {
-    throw std::invalid_argument("CarmaUSTrafficRules could not determine traffic rules as two DirectionOfTravel regulations were applied on lanelet: " + std::to_string(ll.id()));
+    return !(regs[0]->isOneWay()) &&
+           regs[0]->appliesTo(participant);  // If there is a regulation return true if bi-directional
+  }
+  else
+  {
+    throw std::invalid_argument("CarmaUSTrafficRules could not determine traffic rules as two DirectionOfTravel "
+                                "regulations were applied on lanelet: " +
+                                std::to_string(ll.id()));
   }
 }
 
@@ -92,7 +104,8 @@ bool CarmaUSTrafficRules::canAccessRegion(const ConstLaneletOrArea& region) cons
 
 bool CarmaUSTrafficRules::canPass(const ConstLanelet& lanelet) const
 {
-  if (!canTravelInDir(lanelet, participant())) { // Check direction of travel
+  if (!canTravelInDir(lanelet, participant()))
+  {  // Check direction of travel
     return false;
   }
   // Check access by participant
@@ -113,7 +126,8 @@ bool CarmaUSTrafficRules::canPass(const ConstLanelet& from, const ConstLanelet& 
 }
 
 bool CarmaUSTrafficRules::boundPassable(const ConstLineString3d& bound,
-                   const std::vector<PassingControlLineConstPtr>& controlLines, bool fromLeft) const
+                                        const std::vector<PassingControlLineConstPtr>& controlLines,
+                                        bool fromLeft) const
 {
   bool result = PassingControlLine::boundPassable(bound, controlLines, fromLeft, participant());
   // TODO throw exception or revert to attributes or return true????

@@ -24,18 +24,22 @@
 
 namespace lanelet
 {
-
+// C++ 14 vs 17 constent definition
+#if __cplusplus < 201703L
+constexpr char DirectionOfTravel::RuleName[];  // instantiate string in cpp file
 // Forward declare static constexpr
 constexpr char DirectionOfTravel::OneWay[];
 constexpr char DirectionOfTravel::BiDirectional[];
 constexpr char DirectionOfTravel::DirectionAttribute[];
+#endif
 
 ConstLanelets DirectionOfTravel::getLanelets() const
 {
   return getParameters<ConstLanelet>(RoleName::Refers);
 }
 
-bool DirectionOfTravel::isOneWay() const {
+bool DirectionOfTravel::isOneWay() const
+{
   return direction_.compare(OneWay) == 0;
 }
 
@@ -44,46 +48,47 @@ bool DirectionOfTravel::appliesTo(const std::string& participant) const
   return setContainsParticipant(participants_, participant);
 }
 
-lanelet::RegulatoryElementDataPtr DirectionOfTravel::buildData(Id id, Lanelets lanelets, std::string direction_of_travel, std::vector<std::string> participants) {
+lanelet::RegulatoryElementDataPtr DirectionOfTravel::buildData(Id id, Lanelets lanelets,
+                                                               std::string direction_of_travel,
+                                                               std::vector<std::string> participants)
+{
   // Add parameters
   RuleParameterMap rules;
 
-  rules[lanelet::RoleNameString::Refers].insert(rules[lanelet::RoleNameString::Refers].end(), lanelets.begin(), lanelets.end());
+  rules[lanelet::RoleNameString::Refers].insert(rules[lanelet::RoleNameString::Refers].end(), lanelets.begin(),
+                                                lanelets.end());
 
   // Add attributes
-  AttributeMap attribute_map({
-    {AttributeNamesString::Type, AttributeValueString::RegulatoryElement},
-    {AttributeNamesString::Subtype, RuleName},
-    {DirectionAttribute, direction_of_travel}
-  });
+  AttributeMap attribute_map({ { AttributeNamesString::Type, AttributeValueString::RegulatoryElement },
+                               { AttributeNamesString::Subtype, RuleName },
+                               { DirectionAttribute, direction_of_travel } });
 
-  for (auto participant : participants) {
-    const std::string key= std::string(AttributeNamesString::Participant) + ":" + participant;
+  for (auto participant : participants)
+  {
+    const std::string key = std::string(AttributeNamesString::Participant) + ":" + participant;
     attribute_map[key] = "yes";
   }
 
   return std::make_shared<RegulatoryElementData>(id, rules, attribute_map);
 }
 
-DirectionOfTravel::DirectionOfTravel(const lanelet::RegulatoryElementDataPtr& data) : RegulatoryElement(data) {
-  
+DirectionOfTravel::DirectionOfTravel(const lanelet::RegulatoryElementDataPtr& data) : RegulatoryElement(data)
+{
   // Read participants
   addParticipantsToSetFromMap(participants_, attributes());
-  
+
   // Read direction of travel
   auto direction_of_travel = attribute(DirectionAttribute).value();
 
-  if (direction_of_travel.compare(OneWay) != 0 && direction_of_travel.compare(BiDirectional) != 0) {
-    throw std::invalid_argument("Failed to build DirectionOfTravel regulation as provided direction_of_travel was not one of [ " + std::string(OneWay) + ", " + std::string(BiDirectional) + " ]");
+  if (direction_of_travel.compare(OneWay) != 0 && direction_of_travel.compare(BiDirectional) != 0)
+  {
+    throw std::invalid_argument("Failed to build DirectionOfTravel regulation as provided direction_of_travel was not "
+                                "one of [ " +
+                                std::string(OneWay) + ", " + std::string(BiDirectional) + " ]");
   }
 
   direction_ = direction_of_travel;
 }
-
-// C++ 14 vs 17 constent definition
-#if __cplusplus < 201703L
-constexpr char DirectionOfTravel::RuleName[];  // instantiate string in cpp file
-#endif
 
 namespace
 {

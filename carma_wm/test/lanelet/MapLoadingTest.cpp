@@ -40,12 +40,11 @@ using ::testing::ReturnArg;
 
 namespace lanelet
 {
-
 using namespace lanelet::units::literals;
 
 TEST(MapLoadingTest, mapLoadingTest)
 {
-  lanelet::LaneletMapPtr map = lanelet::load("resources/test_map.osm", lanelet::Origin({0, 0}));
+  lanelet::LaneletMapPtr map = lanelet::load("resources/test_map.osm", lanelet::Origin({ 0, 0 }));
 
   auto ll_1 = map->laneletLayer.find(1349);
 
@@ -58,11 +57,15 @@ TEST(MapLoadingTest, mapLoadingTest)
 
   ASSERT_EQ(2, control_lines.size());
   // TODO control line check
-  ASSERT_TRUE(PassingControlLine::boundPassable(ll_1->leftBound(), control_lines, true, lanelet::Participants::VehicleCar));
-  ASSERT_TRUE(PassingControlLine::boundPassable(ll_1->leftBound(), control_lines, false, lanelet::Participants::VehicleCar));
+  ASSERT_TRUE(
+      PassingControlLine::boundPassable(ll_1->leftBound(), control_lines, true, lanelet::Participants::VehicleCar));
+  ASSERT_TRUE(
+      PassingControlLine::boundPassable(ll_1->leftBound(), control_lines, false, lanelet::Participants::VehicleCar));
 
-  ASSERT_FALSE(PassingControlLine::boundPassable(ll_1->rightBound(), control_lines, true, lanelet::Participants::VehicleCar));
-  ASSERT_FALSE(PassingControlLine::boundPassable(ll_1->rightBound(), control_lines, false, lanelet::Participants::VehicleCar));
+  ASSERT_FALSE(
+      PassingControlLine::boundPassable(ll_1->rightBound(), control_lines, true, lanelet::Participants::VehicleCar));
+  ASSERT_FALSE(
+      PassingControlLine::boundPassable(ll_1->rightBound(), control_lines, false, lanelet::Participants::VehicleCar));
 
   auto dot = (*ll_1).regulatoryElementsAs<DirectionOfTravel>();
 

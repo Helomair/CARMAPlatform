@@ -38,7 +38,7 @@ public:
   static constexpr char OneWay[] = "one_way";
   static constexpr char BiDirectional[] = "bi_directional";
   static constexpr char DirectionAttribute[] = "direction";
-  
+
   std::unordered_set<std::string> participants_;
   std::string direction_;
 
@@ -51,9 +51,9 @@ public:
 
   /**
    * @brief Returns true if this regulation is one way
-   * 
+   *
    * @return True if DirectionAttribute is equal to DirectionOfTravel::OneWay. False otherwise
-   */ 
+   */
   bool isOneWay() const;
 
   /**
@@ -65,7 +65,7 @@ public:
 
   /**
    * @brief Constructor defined to support loading from lanelet files
-   */ 
+   */
   explicit DirectionOfTravel(const lanelet::RegulatoryElementDataPtr& data);
 
   /**
@@ -73,15 +73,16 @@ public:
    *
    * @param id The lanelet::Id to give this regulation
    * @param lanelets The lanelets impacted by this regulation
-   * @param direction_of_travel The direction of travel expected to be one of DirectionOfTravel::OneWay or DirectionOfTravel::BiDirectional
+   * @param direction_of_travel The direction of travel expected to be one of DirectionOfTravel::OneWay or
+   * DirectionOfTravel::BiDirectional
    * @param participants The participants which can access the provided lanelets and areas
-   * 
+   *
    * @return RegulatoryElementData containing all the necessary information to construct a direction of travel object
    */
-  static lanelet::RegulatoryElementDataPtr buildData(Id id, Lanelets lanelets, std::string direction_of_travel, std::vector<std::string> participants);
+  static lanelet::RegulatoryElementDataPtr buildData(Id id, Lanelets lanelets, std::string direction_of_travel,
+                                                     std::vector<std::string> participants);
 
 protected:
-
   // the following lines are required so that lanelet2 can create this object when loading a map with this regulatory
   // element
   friend class RegisterRegulatoryElement<DirectionOfTravel>;

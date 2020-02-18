@@ -23,10 +23,12 @@ namespace lanelet
 {
 /**
  * @brief Represents a speed limit which can be set dynamically either through a V2X communications service.
- *        In a standard used case a digital speed limit would be expected to have precedence over a speed limit from a sign
+ *        In a standard used case a digital speed limit would be expected to have precedence over a speed limit from a
+ * sign
  *
  * A digital speed limit is dynamic and is normally provided through a communications service. This means the speed
- * limit is stored directly in the regulatory element rather than a TrafficSign element. A speed limit is applied uniformly accross all affected lanelets.
+ * limit is stored directly in the regulatory element rather than a TrafficSign element. A speed limit is applied
+ * uniformly accross all affected lanelets.
  *
  * @ingroup RegulatoryElementPrimitives
  * @ingroup Primitives
@@ -68,25 +70,25 @@ public:
   bool appliesTo(const std::string& participant) const;
 
   /**
-   * @brief Static helper function that creates a speed limit based on the provided velocity, start, end lines, and the affected
-   * participants
+   * @brief Static helper function that creates a speed limit based on the provided velocity, start, end lines, and the
+   * affected participants
    *
    * @param id The lanelet::Id of this object
    * @param speed_limit The velocity which will be treated as the speed limit in this region
    * @param lanelets The lanelets this speed limit applies to
    * @param areas The areas this speed limit applies to
    * @param participants The set of participants which this speed limit will apply to
-   * 
+   *
    * @return RegulatoryElementData containing all the necessary information to construct a speed limit element
    */
   static lanelet::RegulatoryElementDataPtr buildData(Id id, Velocity speed_limit, Lanelets lanelets, Areas areas,
-                    std::vector<std::string> participants);
+                                                     std::vector<std::string> participants);
 
   /**
    * @brief Constructor required for compatability with lanlet2 loading
-   * 
+   *
    * @param data The data to initialize this regulation with
-   */ 
+   */
   explicit DigitalSpeedLimit(const lanelet::RegulatoryElementDataPtr& data);
 
 protected:

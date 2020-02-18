@@ -413,7 +413,7 @@ void CARMAWorldModel::computeDowntrackReferenceLine()
       auto nextLanelet = shortest_path[next_index];
       lanelet::LineString3d nextCenterline = copyConstructLineString(nextLanelet.centerline());
 
-      size_t connectionCount = shortest_path_graph->possiblePaths(ll, (uint32_t) 2, false).size();
+      size_t connectionCount = shortest_path_graph->possiblePaths(ll, (uint32_t)2, false).size();
 
       if (connectionCount == 1)
       {  // Get list of connected lanelets without lanechanges. On the shortest path this should only return 1 or 0
@@ -456,17 +456,20 @@ LaneletRoutingGraphConstPtr CARMAWorldModel::getMapRoutingGraph() const
                                                                                               // variant
 }
 
-lanelet::Optional<TrafficRulesConstPtr> CARMAWorldModel::getTrafficRules(const std::string& participant) const {
+lanelet::Optional<TrafficRulesConstPtr> CARMAWorldModel::getTrafficRules(const std::string& participant) const
+{
   lanelet::Optional<TrafficRulesConstPtr> optional_ptr;
   // Create carma traffic rules object
-  try {
-
+  try
+  {
     lanelet::traffic_rules::TrafficRulesUPtr traffic_rules = lanelet::traffic_rules::TrafficRulesFactory::create(
-      lanelet::traffic_rules::CarmaUSTrafficRules::Location, participant);
+        lanelet::traffic_rules::CarmaUSTrafficRules::Location, participant);
 
-    optional_ptr = std::static_pointer_cast<const lanelet::traffic_rules::TrafficRules>(lanelet::traffic_rules::TrafficRulesPtr(std::move(traffic_rules)));
-
-  } catch (const lanelet::InvalidInputError& e) {
+    optional_ptr = std::static_pointer_cast<const lanelet::traffic_rules::TrafficRules>(
+        lanelet::traffic_rules::TrafficRulesPtr(std::move(traffic_rules)));
+  }
+  catch (const lanelet::InvalidInputError& e)
+  {
     return optional_ptr;
   }
 

@@ -32,7 +32,6 @@ using ::testing::ReturnArg;
 
 namespace lanelet
 {
-
 using namespace lanelet::units::literals;
 
 TEST(DigitalSpeedLimit, digitalSpeedLimit)
@@ -55,29 +54,29 @@ TEST(DigitalSpeedLimit, digitalSpeedLimit)
   std::vector<lanelet::Point3d> right_2 = { pr2, pr3 };
   auto ll_2 = carma_wm::getLanelet(left_2, right_2);
 
-    // Add an area
+  // Add an area
   lanelet::LineString3d area_loop(lanelet::utils::getId(), { pl3, p4, p5, pr3 });
-  
+
   area_loop.attributes()[lanelet::AttributeName::Type] = lanelet::AttributeValueString::LineThin;
   area_loop.attributes()[lanelet::AttributeName::Subtype] = lanelet::AttributeValueString::Dashed;
 
-  lanelet::Area area(lanelet::utils::getId(), {area_loop});
+  lanelet::Area area(lanelet::utils::getId(), { area_loop });
 
   area.attributes()[lanelet::AttributeName::Type] = lanelet::AttributeValueString::Multipolygon;
   area.attributes()[lanelet::AttributeName::Subtype] = lanelet::AttributeValueString::Road;
   area.attributes()[lanelet::AttributeName::Location] = lanelet::AttributeValueString::Urban;
   area.attributes()[lanelet::AttributeNamesString::ParticipantVehicle] = "yes";
 
-  DigitalSpeedLimit dsl(DigitalSpeedLimit::buildData(lanelet::utils::getId(), 5_kmh, {ll_1, ll_2}, {area}, {lanelet::Participants::VehicleCar}));
+  DigitalSpeedLimit dsl(DigitalSpeedLimit::buildData(lanelet::utils::getId(), 5_kmh, { ll_1, ll_2 }, { area },
+                                                     { lanelet::Participants::VehicleCar }));
 
   ASSERT_EQ(2, dsl.getLanelets().size());
   ASSERT_EQ(1, dsl.getAreas().size());
   ASSERT_FALSE(dsl.appliesTo(lanelet::Participants::Vehicle));
   ASSERT_TRUE(dsl.appliesTo(lanelet::Participants::VehicleCar));
-  ASSERT_TRUE(dsl.appliesTo(lanelet::Participants::VehicleCarElectric)); // Test acceptance of sub type
+  ASSERT_TRUE(dsl.appliesTo(lanelet::Participants::VehicleCarElectric));  // Test acceptance of sub type
 
   ASSERT_EQ(5_kmh, dsl.getSpeedLimit());
-
 }
 
 }  // namespace lanelet
