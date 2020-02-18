@@ -53,6 +53,27 @@ TEST(MapLoadingTest, mapLoadingTest)
 
   ASSERT_EQ(1, sl.size());
   ASSERT_EQ(5_mph, sl[0]->getSpeedLimit());
+
+  auto control_lines = (*ll_1).regulatoryElementsAs<PassingControlLine>();
+
+  ASSERT_EQ(2, control_lines.size());
+  // TODO control line check
+  ASSERT_TRUE(PassingControlLine::boundPassable(ll_1->leftBound(), control_lines, true, lanelet::Participants::VehicleCar));
+  ASSERT_TRUE(PassingControlLine::boundPassable(ll_1->leftBound(), control_lines, false, lanelet::Participants::VehicleCar));
+
+  ASSERT_FALSE(PassingControlLine::boundPassable(ll_1->rightBound(), control_lines, true, lanelet::Participants::VehicleCar));
+  ASSERT_FALSE(PassingControlLine::boundPassable(ll_1->rightBound(), control_lines, false, lanelet::Participants::VehicleCar));
+
+  auto dot = (*ll_1).regulatoryElementsAs<DirectionOfTravel>();
+
+  ASSERT_EQ(1, dot.size());
+  ASSERT_TRUE(dot[0]->isOneWay());
+
+  auto rar = (*ll_1).regulatoryElementsAs<RegionAccessRule>();
+
+  ASSERT_EQ(1, dot.size());
+  ASSERT_TRUE(rar[0]->accessable("vehicle:car"));
+  ASSERT_FALSE(rar[0]->accessable("vehicle"));
 }
 
 }  // namespace lanelet
