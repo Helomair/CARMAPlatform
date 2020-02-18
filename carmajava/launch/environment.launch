@@ -21,9 +21,15 @@
   <arg name="vector_map_file" default="vector_map.osm" doc="Path to the map osm file if using the noupdate load type"/>
 
   <!-- vector map loader -->
-  <include file="$(find map_file)/launch/lanelet2_map_loader.launch">
-   <arg name="file_name" value="$(arg vector_map_file)"/>
-  </include>
+  <group>
+    <remap from="/lanelet_map_bin" to="base_map"/>
+    <include file="$(find map_file)/launch/lanelet2_map_loader.launch">
+    <arg name="file_name" value="$(arg vector_map_file)"/>
+    </include>
+  </group>
+  
+  <!-- World Model Updater -->
+  <include file="$(find carma_wm_ctrl)/launch/carma_wm_broadcaster.launch"/>
 
   <!-- TODO Object Tracking and World Model go here -->
 
