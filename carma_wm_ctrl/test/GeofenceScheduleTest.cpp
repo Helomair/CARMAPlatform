@@ -26,7 +26,6 @@ using ::testing::ReturnArg;
 
 namespace carma_wm_ctrl
 {
-
 TEST(GeofenceSchedule, scheduleStarted)
 {
   GeofenceSchedule sch;
@@ -56,13 +55,8 @@ TEST(GeofenceSchedule, getNextInterval)
 {
   // Test before start
 
-  GeofenceSchedule sch(
-    ros::Time(1),
-    ros::Time(6),
-    ros::Duration(2),
-    ros::Duration(3),
-    ros::Duration(1),
-    ros::Duration(2)  // This means the next schedule is a 4 (2+2)
+  GeofenceSchedule sch(ros::Time(1), ros::Time(6), ros::Duration(2), ros::Duration(3), ros::Duration(1),
+                       ros::Duration(2)  // This means the next schedule is a 4 (2+2)
   );
 
   // Test before control start
@@ -78,13 +72,8 @@ TEST(GeofenceSchedule, getNextInterval)
   ASSERT_NEAR(0.0, sch.getNextInterval(ros::Time(3.5)).second.toSec(), 0.00001);
   ASSERT_FALSE(sch.getNextInterval(ros::Time(3.5)).first);
 
-  sch = GeofenceSchedule(
-    ros::Time(1),
-    ros::Time(6),
-    ros::Duration(2),
-    ros::Duration(5),
-    ros::Duration(1),
-    ros::Duration(2)  // This means the next schedule is a 4 (2+2)
+  sch = GeofenceSchedule(ros::Time(1), ros::Time(6), ros::Duration(2), ros::Duration(5), ros::Duration(1),
+                         ros::Duration(2)  // This means the next schedule is a 4 (2+2)
   );
   // Test between end of first control and start of second
   ASSERT_NEAR(4.0, sch.getNextInterval(ros::Time(3.5)).second.toSec(), 0.00001);

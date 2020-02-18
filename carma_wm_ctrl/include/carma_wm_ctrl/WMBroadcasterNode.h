@@ -22,7 +22,7 @@
 #include <carma_wm_ctrl/WMBroadcaster.h>
 #include <ros/ros.h>
 
-namespace carma_wm_ctrl 
+namespace carma_wm_ctrl
 {
 /*!
  * \brief Node which provies exposes map publication and carma_wm update logic
@@ -49,13 +49,12 @@ public:
 
   /**
    * @brief Callback to publish a map
-   * 
+   *
    * @param map_msg The map message to publish
-   */ 
+   */
   void publishMap(const autoware_lanelet2_msgs::MapBin& map_msg);
 
 private:
-
   ros::CARMANodeHandle cnh_;
 
   ros::Publisher map_pub_;

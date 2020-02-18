@@ -83,7 +83,7 @@ private:
    * @return The next available timer id
    */
   uint32_t nextId();
-  
+
   /**
    * @brief The callback which is triggered when a geofence becomes active
    *        This will call the user set active_callback set from the onGeofenceActive function

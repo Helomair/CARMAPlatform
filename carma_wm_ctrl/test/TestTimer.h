@@ -23,29 +23,30 @@
 
 namespace carma_wm_ctrl
 {
-  // Timer for unit testing which is implemented using ros::Time and std::thread instead of ros::Timer which requires a node handle to build
+// Timer for unit testing which is implemented using ros::Time and std::thread instead of ros::Timer which requires a
+// node handle to build
 class TestTimer : public Timer
 {
-  public:
-    static ros::Time getTime();
-  private:
-    static std::mutex clock_mutex_;
+public:
+  static ros::Time getTime();
 
-    std::function<void(const ros::TimerEvent&)> callback_;
+private:
+  static std::mutex clock_mutex_;
 
-    ros::Time start_time_ = ros::Time(0);
-    ros::Duration duration_ = ros::Duration(0);
-    bool oneshot_ = false;
+  std::function<void(const ros::TimerEvent&)> callback_;
 
-    std::thread timer_thread_;
-    std::mutex timer_mutex_;
+  ros::Time start_time_ = ros::Time(0);
+  ros::Duration duration_ = ros::Duration(0);
+  bool oneshot_ = false;
 
-    std::atomic_bool running_ = ATOMIC_VAR_INIT(false);
+  std::thread timer_thread_;
+  std::mutex timer_mutex_;
 
-    void startImpl(); // Implementation of start to prevent deadlock
+  std::atomic_bool running_ = ATOMIC_VAR_INIT(false);
+
+  void startImpl();  // Implementation of start to prevent deadlock
 
 public:
-
   TestTimer();
   ~TestTimer();
 

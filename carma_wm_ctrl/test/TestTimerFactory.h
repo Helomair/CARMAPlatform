@@ -21,18 +21,17 @@
 
 namespace carma_wm_ctrl
 {
-  // Timer factory for unit testing
+// Timer factory for unit testing
 class TestTimerFactory : public TimerFactory
 {
 public:
-
-  TestTimerFactory() {};
+  TestTimerFactory(){};
   ~TestTimerFactory(){};
 
   //// Overrides
   std::unique_ptr<Timer> buildTimer(uint32_t id, ros::Duration duration,
                                     std::function<void(const ros::TimerEvent&)> callback, bool oneshot = false,
-                                    bool autostart = true) override 
+                                    bool autostart = true) override
   {
     std::unique_ptr<Timer> timer = std::make_unique<TestTimer>();
     timer->setId(id);

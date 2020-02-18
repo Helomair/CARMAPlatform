@@ -23,7 +23,7 @@
 #include <lanelet2_extension/utility/message_conversion.h>
 #include <memory>
 #include <chrono>
-#include <ctime> 
+#include <ctime>
 #include <atomic>
 #include "TestHelpers.h"
 #include "TestTimer.h"
@@ -38,27 +38,29 @@ using ::testing::ReturnArg;
 
 namespace carma_wm_ctrl
 {
-
 TEST(WMBroadcaster, Constructor)
 {
-  WMBroadcaster([](const autoware_lanelet2_msgs::MapBin& map_bin) {}, std::make_unique<TestTimerFactory>()); // Create broadcaster with test timers. Having this check helps verify that the timers do not crash on destruction
+  WMBroadcaster([](const autoware_lanelet2_msgs::MapBin& map_bin) {},
+                std::make_unique<TestTimerFactory>());  // Create broadcaster with test timers. Having this check helps
+                                                        // verify that the timers do not crash on destruction
 }
 
 TEST(WMBroadcaster, baseMapCallback)
 {
-
-  ros::Time::setNow(ros::Time(0)); // Set current time
+  ros::Time::setNow(ros::Time(0));  // Set current time
 
   size_t base_map_call_count = 0;
-  WMBroadcaster wmb([&](const autoware_lanelet2_msgs::MapBin& map_bin) {
-    // Publish map callback
-    lanelet::LaneletMapPtr map(new lanelet::LaneletMap);
-    lanelet::utils::conversion::fromBinMsg(map_bin, map);
+  WMBroadcaster wmb(
+      [&](const autoware_lanelet2_msgs::MapBin& map_bin) {
+        // Publish map callback
+        lanelet::LaneletMapPtr map(new lanelet::LaneletMap);
+        lanelet::utils::conversion::fromBinMsg(map_bin, map);
 
-    ASSERT_EQ(4, map->laneletLayer.size()); // Verify the map can be decoded
+        ASSERT_EQ(4, map->laneletLayer.size());  // Verify the map can be decoded
 
-    base_map_call_count++;
-  }, std::make_unique<TestTimerFactory>());
+        base_map_call_count++;
+      },
+      std::make_unique<TestTimerFactory>());
 
   // Get and convert map to binary message
   auto map = carma_wm::getDisjointRouteMap();
@@ -67,7 +69,7 @@ TEST(WMBroadcaster, baseMapCallback)
   lanelet::utils::conversion::toBinMsg(map, &msg);
 
   autoware_lanelet2_msgs::MapBinConstPtr map_msg_ptr(new autoware_lanelet2_msgs::MapBin(msg));
-  
+
   // Trigger basemap callback
   wmb.baseMapCallback(map_msg_ptr);
 
@@ -84,26 +86,26 @@ TEST(WMBroadcaster, geofenceCallback)
   // Test adding then evaluate if the calls to active and inactive are done correctly
   Geofence gf;
   gf.id_ = 1;
-  gf.schedule = GeofenceSchedule(
-    ros::Time(1), // Schedule between 1 and 8
-    ros::Time(8),
-    ros::Duration(2), // Start's at 2
-    ros::Duration(3.1), // Ends at by 3.1
-    ros::Duration(1), // Duration of 1 and interval of two so active durations are (2-3)
-    ros::Duration(2) 
-  );
-  ros::Time::setNow(ros::Time(0)); // Set current time
+  gf.schedule = GeofenceSchedule(ros::Time(1),  // Schedule between 1 and 8
+                                 ros::Time(8),
+                                 ros::Duration(2),    // Start's at 2
+                                 ros::Duration(3.1),  // Ends at by 3.1
+                                 ros::Duration(1),    // Duration of 1 and interval of two so active durations are (2-3)
+                                 ros::Duration(2));
+  ros::Time::setNow(ros::Time(0));  // Set current time
 
   size_t base_map_call_count = 0;
-  WMBroadcaster wmb([&](const autoware_lanelet2_msgs::MapBin& map_bin) {
-    // Publish map callback
-    lanelet::LaneletMapPtr map(new lanelet::LaneletMap);
-    lanelet::utils::conversion::fromBinMsg(map_bin, map);
+  WMBroadcaster wmb(
+      [&](const autoware_lanelet2_msgs::MapBin& map_bin) {
+        // Publish map callback
+        lanelet::LaneletMapPtr map(new lanelet::LaneletMap);
+        lanelet::utils::conversion::fromBinMsg(map_bin, map);
 
-    ASSERT_EQ(4, map->laneletLayer.size()); // Verify the map can be decoded
+        ASSERT_EQ(4, map->laneletLayer.size());  // Verify the map can be decoded
 
-    base_map_call_count++;
-  }, std::make_unique<TestTimerFactory>());
+        base_map_call_count++;
+      },
+      std::make_unique<TestTimerFactory>());
 
   // Get and convert map to binary message
   auto map = carma_wm::getDisjointRouteMap();
@@ -112,7 +114,7 @@ TEST(WMBroadcaster, geofenceCallback)
   lanelet::utils::conversion::toBinMsg(map, &msg);
 
   autoware_lanelet2_msgs::MapBinConstPtr map_msg_ptr(new autoware_lanelet2_msgs::MapBin(msg));
-  
+
   // Trigger basemap callback
   wmb.baseMapCallback(map_msg_ptr);
 
@@ -121,15 +123,14 @@ TEST(WMBroadcaster, geofenceCallback)
   // Verify adding geofence call
   wmb.geofenceCallback(gf);
 
-  ros::Time::setNow(ros::Time(2.1)); // Set current time
+  ros::Time::setNow(ros::Time(2.1));  // Set current time
 
   std::atomic<uint32_t> temp(0);
   carma_wm::waitForEqOrTimeout(3.0, 1, temp);
 
-  ros::Time::setNow(ros::Time(3.1)); // Set current time
+  ros::Time::setNow(ros::Time(3.1));  // Set current time
 
   carma_wm::waitForEqOrTimeout(3.0, 1, temp);
 }
-
 
 }  // namespace carma_wm_ctrl

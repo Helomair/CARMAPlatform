@@ -30,7 +30,6 @@ void WMBroadcasterNode::publishMap(const autoware_lanelet2_msgs::MapBin& map_msg
 WMBroadcasterNode::WMBroadcasterNode()
   : wmb_(std::bind(&WMBroadcasterNode::publishMap, this, _1), std::make_unique<ROSTimerFactory>()){};
 
-
 int WMBroadcasterNode::run()
 {
   // Map Publisher

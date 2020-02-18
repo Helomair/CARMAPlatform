@@ -12,7 +12,7 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
  * License for the specific language governing permissions and limitations under
  * the License.
- */ 
+ */
 
 #include <ros/time.h>
 #include <carma_wm_ctrl/GeofenceSchedule.h>
@@ -20,21 +20,17 @@
 
 namespace carma_wm_ctrl
 {
-GeofenceSchedule::GeofenceSchedule() {}
+GeofenceSchedule::GeofenceSchedule()
+{
+}
 
-GeofenceSchedule::GeofenceSchedule(ros::Time schedule_start,
-  ros::Time schedule_end,
-  ros::Duration control_start,
-  ros::Duration control_end,
-  ros::Duration control_duration,
-  ros::Duration control_interval,
-  DayOfTheWeekSet week_day_set)
+GeofenceSchedule::GeofenceSchedule(ros::Time schedule_start, ros::Time schedule_end, ros::Duration control_start,
+                                   ros::Duration control_end, ros::Duration control_duration,
+                                   ros::Duration control_interval, DayOfTheWeekSet week_day_set)
 {
   schedule_start_ = schedule_start;
   schedule_end_ = schedule_end;
-  control_start_ = control_start,
-  control_end_ = control_end,
-  control_duration_ = control_duration;
+  control_start_ = control_start, control_end_ = control_end, control_duration_ = control_duration;
   control_interval_ = control_interval;
   week_day_set_ = week_day_set;
 }
@@ -76,7 +72,8 @@ std::pair<bool, ros::Time> GeofenceSchedule::getNextInterval(const ros::Time& ti
   ros::Duration cur_start = control_start_;
 
   // Check if current time is after end of control
-  if (ros_time_of_day > ros::Time(control_end_.toSec())) {
+  if (ros_time_of_day > ros::Time(control_end_.toSec()))
+  {
     // The requested time is after control end so there will not be another interval
     return std::make_pair(false, ros::Time(0));
   }
@@ -84,12 +81,14 @@ std::pair<bool, ros::Time> GeofenceSchedule::getNextInterval(const ros::Time& ti
   // Iterate over the day to find the next control interval
   constexpr int num_sec_in_day = 86400;
   const ros::Duration full_day(num_sec_in_day);
-  bool time_in_active_period = false; // Flag indicating if the requested time is within an active control period
+  bool time_in_active_period = false;  // Flag indicating if the requested time is within an active control period
 
   while (cur_start < full_day && ros_time_of_day > ros::Time(cur_start.toSec()))
   {
     // Check if the requested time is within the control period being evaluated
-    if (ros::Time(cur_start.toSec()) < ros_time_of_day && ros_time_of_day < ros::Time((cur_start + control_duration_).toSec())) {
+    if (ros::Time(cur_start.toSec()) < ros_time_of_day &&
+        ros_time_of_day < ros::Time((cur_start + control_duration_).toSec()))
+    {
       time_in_active_period = true;
     }
     cur_start += control_interval_;

@@ -17,8 +17,8 @@
 #include <carma_wm_ctrl/WMBroadcasterNode.h>
 #include <ros/ros.h>
 // Main execution
-int main(int argc, char** argv){
-
+int main(int argc, char** argv)
+{
   // Initialize node
   ros::init(argc, argv, "wm_broadcaster");
   carma_wm_ctrl::WMBroadcasterNode node;

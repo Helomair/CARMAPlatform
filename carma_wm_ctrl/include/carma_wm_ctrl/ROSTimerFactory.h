@@ -27,7 +27,7 @@ class ROSTimerFactory : public TimerFactory
 public:
   /**
    * @brief Destructor
-   */ 
+   */
   ~ROSTimerFactory();
 
   //// Overrides

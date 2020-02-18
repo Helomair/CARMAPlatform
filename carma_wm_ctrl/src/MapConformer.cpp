@@ -22,7 +22,6 @@
 #include <carma_wm/lanelet/PassingControlLine.h>
 #include <carma_wm_ctrl/MapConformer.h>
 
-
 namespace lanelet
 {
 /**
@@ -45,45 +44,44 @@ enum class LaneChangeType
 
 // List of supported participants. Should exactly match elements of lanelet::Participants struct
 constexpr size_t PARTICIPANT_COUNT = 12;
-constexpr const char* participant_types[PARTICIPANT_COUNT] = {
-  lanelet::Participants::Vehicle, //
-  lanelet::Participants::VehicleBus, 
-  lanelet::Participants::VehicleCar, 
-  lanelet::Participants::VehicleCarElectric, 
-  lanelet::Participants::VehicleCarCombustion, 
-  lanelet::Participants::VehicleTruck, 
-  lanelet::Participants::VehicleMotorcycle, 
-  lanelet::Participants::VehicleTaxi, 
-  lanelet::Participants::VehicleEmergency, 
-  lanelet::Participants::Pedestrian, //
-  lanelet::Participants::Bicycle, //
-  lanelet::Participants::Train
-};
+constexpr const char* participant_types[PARTICIPANT_COUNT] = { lanelet::Participants::Vehicle,  //
+                                                               lanelet::Participants::VehicleBus,
+                                                               lanelet::Participants::VehicleCar,
+                                                               lanelet::Participants::VehicleCarElectric,
+                                                               lanelet::Participants::VehicleCarCombustion,
+                                                               lanelet::Participants::VehicleTruck,
+                                                               lanelet::Participants::VehicleMotorcycle,
+                                                               lanelet::Participants::VehicleTaxi,
+                                                               lanelet::Participants::VehicleEmergency,
+                                                               lanelet::Participants::Pedestrian,  //
+                                                               lanelet::Participants::Bicycle,     //
+                                                               lanelet::Participants::Train };
 
 /**
  * @brief Helper function to return the set of all german traffic rules which are currently implemented
- * 
+ *
  * @return A list of german traffic rules which have been implemented
- */ 
-std::vector<lanelet::traffic_rules::TrafficRulesUPtr> getAllGermanTrafficRules() {
+ */
+std::vector<lanelet::traffic_rules::TrafficRulesUPtr> getAllGermanTrafficRules()
+{
   std::vector<lanelet::traffic_rules::TrafficRulesUPtr> german_traffic_rules_set;
   german_traffic_rules_set.reserve(PARTICIPANT_COUNT);
 
-  for (size_t i = 0; i < PARTICIPANT_COUNT; i++) {
-
+  for (size_t i = 0; i < PARTICIPANT_COUNT; i++)
+  {
     // This loop is designed to identify the set of currently supported participants for german traffic rules
-    // Using exceptions as logic like this is not usually a good practice, but since this is an operation performed only at startup on a small number of elements
-    // efficiency should not be an issue
-    try {
-
+    // Using exceptions as logic like this is not usually a good practice, but since this is an operation performed only
+    // at startup on a small number of elements efficiency should not be an issue
+    try
+    {
       lanelet::traffic_rules::TrafficRulesUPtr traffic_rules =
-        lanelet::traffic_rules::TrafficRulesFactory::create(lanelet::Locations::Germany, participant_types[i]);
+          lanelet::traffic_rules::TrafficRulesFactory::create(lanelet::Locations::Germany, participant_types[i]);
       german_traffic_rules_set.emplace_back(std::move(traffic_rules));
-
-    } catch (const lanelet::InvalidInputError& e) {
+    }
+    catch (const lanelet::InvalidInputError& e)
+    {
       // Ignore participants which there is no generic rules for
     }
-
   }
 
   return german_traffic_rules_set;
@@ -91,20 +89,20 @@ std::vector<lanelet::traffic_rules::TrafficRulesUPtr> getAllGermanTrafficRules()
 
 /**
  * @brief Helper function to get a value from a map or return a default value when key is not present
- * 
- * This function has been copied from lanelet2_traffic_rules/src/GenericTrafficRules.cpp as it was not exposed by the Lanelet2 libraray.
- * The function therefore has the same functionality as the GenericTrafficRules class
- * 
+ *
+ * This function has been copied from lanelet2_traffic_rules/src/GenericTrafficRules.cpp as it was not exposed by the
+ * Lanelet2 libraray. The function therefore has the same functionality as the GenericTrafficRules class
+ *
  * https://github.com/fzi-forschungszentrum-informatik/Lanelet2/blob/master/lanelet2_traffic_rules/src/GenericTrafficRules.cpp
  * The source function is copyrighted under BSD 3-Clause "New" or "Revised" License a copy of that notice has been
  * included with this package
- * 
+ *
  * @param map The map to search
  * @param key The key to evaluate
  * @param defaultVal The default to return if key is not in map
- * 
+ *
  * @return Value at key in map or defaultVal if key is not in map
- */ 
+ */
 template <typename Map, typename Key, typename Value>
 Value getMapOrDefault(const Map& map, Key key, Value defaultVal)
 {
@@ -118,19 +116,19 @@ Value getMapOrDefault(const Map& map, Key key, Value defaultVal)
 
 /**
  * @brief Helper function to check if a string starts with another string
- * 
- * This function has been copied from lanelet2_traffic_rules/src/GenericTrafficRules.cpp as it was not exposed by the Lanelet2 libraray.
- * The function therefore has the same functionality as the GenericTrafficRules class
- * 
+ *
+ * This function has been copied from lanelet2_traffic_rules/src/GenericTrafficRules.cpp as it was not exposed by the
+ * Lanelet2 libraray. The function therefore has the same functionality as the GenericTrafficRules class
+ *
  * https://github.com/fzi-forschungszentrum-informatik/Lanelet2/blob/master/lanelet2_traffic_rules/src/GenericTrafficRules.cpp
  * The source function is copyrighted under BSD 3-Clause "New" or "Revised" License a copy of that notice has been
  * included with this package
- * 
+ *
  * @param str Base string
  * @param substr Starting string to check for
- * 
+ *
  * @return True if str starts with substr
- */ 
+ */
 bool startswith(const std::string& str, const std::string& substr)
 {
   return str.compare(0, substr.size(), substr) == 0;
@@ -138,20 +136,20 @@ bool startswith(const std::string& str, const std::string& substr)
 
 /**
  * @brief Helper function to determine the type of lane change implicitly allowed by the markings on the road.
- * 
- * This function has been copied from lanelet2_traffic_rules/src/GenericTrafficRules.cpp as it was not exposed by the Lanelet2 libraray.
- * The function therefore has the same functionality as the GenericTrafficRules class
- * 
+ *
+ * This function has been copied from lanelet2_traffic_rules/src/GenericTrafficRules.cpp as it was not exposed by the
+ * Lanelet2 libraray. The function therefore has the same functionality as the GenericTrafficRules class
+ *
  * https://github.com/fzi-forschungszentrum-informatik/Lanelet2/blob/master/lanelet2_traffic_rules/src/GenericTrafficRules.cpp
  * The source function is copyrighted under BSD 3-Clause "New" or "Revised" License a copy of that notice has been
  * included with this package
- * 
+ *
  * @param type The type of the line string marking
  * @param subtype The sub-type of the line string marking
  * @param participant The type of participant the rules apply too
- * 
+ *
  * @return An enum describing the type of lane change allowed by the road markings
- */ 
+ */
 LaneChangeType getChangeType(const std::string& type, const std::string& subtype, const std::string& participant)
 {
   using LaneChangeMap = std::map<std::pair<std::string, std::string>, LaneChangeType>;
@@ -188,13 +186,13 @@ LaneChangeType getChangeType(const std::string& type, const std::string& subtype
 
 /**
  * @brief Helper function constructs a PassingControlLine based off the provided bound and lane change type
- * 
+ *
  * @param bound The bound which will mark the control line
  * @param type The type of lane change permitted by this bound's implied regulations
  * @param participant The participant that is allowed to cross this control line
- * 
+ *
  * @return A new PasssingControlLine which was created based off the bound
- */ 
+ */
 PassingControlLinePtr buildControlLine(LineString3d& bound, const LaneChangeType type, const std::string& participant)
 {
   if (bound.inverted())
@@ -202,15 +200,15 @@ PassingControlLinePtr buildControlLine(LineString3d& bound, const LaneChangeType
     switch (type)
     {
       case LaneChangeType::ToRight:
-        return std::shared_ptr<PassingControlLine>(
-            new PassingControlLine(PassingControlLine::buildData(lanelet::utils::getId(), { bound.invert() }, {}, { participant })));
+        return std::shared_ptr<PassingControlLine>(new PassingControlLine(
+            PassingControlLine::buildData(lanelet::utils::getId(), { bound.invert() }, {}, { participant })));
       case LaneChangeType::ToLeft:
-        return std::shared_ptr<PassingControlLine>(
-            new PassingControlLine(PassingControlLine::buildData(lanelet::utils::getId(), { bound.invert() }, { participant }, {})));
+        return std::shared_ptr<PassingControlLine>(new PassingControlLine(
+            PassingControlLine::buildData(lanelet::utils::getId(), { bound.invert() }, { participant }, {})));
       case LaneChangeType::Both:
-        return std::shared_ptr<PassingControlLine>(
-            new PassingControlLine(PassingControlLine::buildData(lanelet::utils::getId(), { bound.invert() }, { participant }, { participant })));
-      default: // LaneChangeType::None
+        return std::shared_ptr<PassingControlLine>(new PassingControlLine(PassingControlLine::buildData(
+            lanelet::utils::getId(), { bound.invert() }, { participant }, { participant })));
+      default:  // LaneChangeType::None
         return std::shared_ptr<PassingControlLine>(
             new PassingControlLine(PassingControlLine::buildData(lanelet::utils::getId(), { bound.invert() }, {}, {})));
     }
@@ -220,45 +218,49 @@ PassingControlLinePtr buildControlLine(LineString3d& bound, const LaneChangeType
     switch (type)
     {
       case LaneChangeType::ToRight:
-        return std::shared_ptr<PassingControlLine>(
-            new PassingControlLine(PassingControlLine::buildData(lanelet::utils::getId(), { bound }, { participant }, {})));
+        return std::shared_ptr<PassingControlLine>(new PassingControlLine(
+            PassingControlLine::buildData(lanelet::utils::getId(), { bound }, { participant }, {})));
       case LaneChangeType::ToLeft:
-        return std::shared_ptr<PassingControlLine>(
-            new PassingControlLine(PassingControlLine::buildData(lanelet::utils::getId(), { bound }, {}, { participant })));
+        return std::shared_ptr<PassingControlLine>(new PassingControlLine(
+            PassingControlLine::buildData(lanelet::utils::getId(), { bound }, {}, { participant })));
       case LaneChangeType::Both:
+        return std::shared_ptr<PassingControlLine>(new PassingControlLine(
+            PassingControlLine::buildData(lanelet::utils::getId(), { bound }, { participant }, { participant })));
+      default:  // LaneChangeType::None
         return std::shared_ptr<PassingControlLine>(
-            new PassingControlLine(PassingControlLine::buildData(lanelet::utils::getId(), { bound }, { participant }, { participant })));
-      default: // LaneChangeType::None
-        return std::shared_ptr<PassingControlLine>(new PassingControlLine(PassingControlLine::buildData(lanelet::utils::getId(), { bound }, {}, {})));
+            new PassingControlLine(PassingControlLine::buildData(lanelet::utils::getId(), { bound }, {}, {})));
     }
   }
 }
 
 /**
  * @brief Generate RegionAccessRules from the inferred regulations in the provided map and lanelet
- * 
+ *
  * @param lanelet The lanelet to generate the rules for
  * @param map The map which the lanelet is part of
  * @param default_traffic_rules The set of traffic rules to treat as guidance for interpreting the map
- */ 
-void addInferredAccessRule(Lanelet& lanelet, lanelet::LaneletMapPtr map, const std::vector<lanelet::traffic_rules::TrafficRulesUPtr>& default_traffic_rules)
+ */
+void addInferredAccessRule(Lanelet& lanelet, lanelet::LaneletMapPtr map,
+                           const std::vector<lanelet::traffic_rules::TrafficRulesUPtr>& default_traffic_rules)
 {
   auto access_rules = lanelet.regulatoryElementsAs<RegionAccessRule>();
   // If the lanelet does not have an access rule then add one based on the generic traffic rules
   if (access_rules.size() == 0)
-  { // No access rule detected so add one
+  {  // No access rule detected so add one
 
     // We want to check for all participants which are currently supported
     std::vector<std::string> allowed_participants;
-    
-    for (const auto& rules : default_traffic_rules) {
-      if (rules->canPass(lanelet)) {
+
+    for (const auto& rules : default_traffic_rules)
+    {
+      if (rules->canPass(lanelet))
+      {
         allowed_participants.emplace_back(rules->participant());
       }
     }
 
-    std::shared_ptr<RegionAccessRule> rar(
-        new RegionAccessRule(RegionAccessRule::buildData(lanelet::utils::getId(), { lanelet }, {}, allowed_participants)));
+    std::shared_ptr<RegionAccessRule> rar(new RegionAccessRule(
+        RegionAccessRule::buildData(lanelet::utils::getId(), { lanelet }, {}, allowed_participants)));
     lanelet.addRegulatoryElement(rar);
     map->add(rar);
   }
@@ -266,12 +268,13 @@ void addInferredAccessRule(Lanelet& lanelet, lanelet::LaneletMapPtr map, const s
 
 /**
  * @brief Generate RegionAccessRules from the inferred regulations in the provided map and area
- * 
+ *
  * @param area The area to generate the rules for
  * @param map The map which the area is part of
  * @param default_traffic_rules The set of traffic rules to treat as guidance for interpreting the map
- */ 
-void addInferredAccessRule(Area& area, lanelet::LaneletMapPtr map, const std::vector<lanelet::traffic_rules::TrafficRulesUPtr>& default_traffic_rules)
+ */
+void addInferredAccessRule(Area& area, lanelet::LaneletMapPtr map,
+                           const std::vector<lanelet::traffic_rules::TrafficRulesUPtr>& default_traffic_rules)
 {
   auto access_rules = area.regulatoryElementsAs<RegionAccessRule>();
   // If the lanelet does not have an access rule then add one based on the generic traffic rules
@@ -280,15 +283,17 @@ void addInferredAccessRule(Area& area, lanelet::LaneletMapPtr map, const std::ve
 
     // We want to check for all participants which are currently supported
     std::vector<std::string> allowed_participants;
-    
-    for (const auto& rules : default_traffic_rules) {
-      if (rules->canPass(area)) {
+
+    for (const auto& rules : default_traffic_rules)
+    {
+      if (rules->canPass(area))
+      {
         allowed_participants.emplace_back(rules->participant());
       }
     }
 
     std::shared_ptr<RegionAccessRule> rar(
-        new RegionAccessRule(RegionAccessRule::buildData(lanelet::utils::getId(), {}, {area}, allowed_participants)));
+        new RegionAccessRule(RegionAccessRule::buildData(lanelet::utils::getId(), {}, { area }, allowed_participants)));
     area.addRegulatoryElement(rar);
     map->add(rar);
   }
@@ -296,10 +301,10 @@ void addInferredAccessRule(Area& area, lanelet::LaneletMapPtr map, const std::ve
 
 /**
  * @brief Generate PassingControlLines from the inferred regulations in the provided map and lanelet
- * 
+ *
  * @param lanelet The lanelet to generate control lines for
  * @param map The map which the lanelet is part of
- */ 
+ */
 void addInferredPassingControlLine(Lanelet& lanelet, lanelet::LaneletMapPtr map)
 {
   // Since this class is only designed to add passing control lines based on lane changes
@@ -314,8 +319,6 @@ void addInferredPassingControlLine(Lanelet& lanelet, lanelet::LaneletMapPtr map)
                                            left_bound.attribute(AttributeName::Subtype).value(), participant);
   LaneChangeType right_type = getChangeType(right_bound.attribute(AttributeName::Type).value(),
                                             right_bound.attribute(AttributeName::Subtype).value(), participant);
-
-
 
   auto local_control_lines = lanelet.regulatoryElementsAs<PassingControlLine>();
 
@@ -374,10 +377,10 @@ void addInferredPassingControlLine(Lanelet& lanelet, lanelet::LaneletMapPtr map)
 
 /**
  * @brief Generate PassingControlLines from the inferred regulations in the provided map and area
- * 
+ *
  * @param area The area to generate control lines for
  * @param map The map which the area is part of
- */ 
+ */
 void addInferredPassingControlLine(Area& area, lanelet::LaneletMapPtr map)
 {
   // Since this class is only designed to add passing control lines based on lane changes
@@ -421,8 +424,9 @@ void addInferredPassingControlLine(Area& area, lanelet::LaneletMapPtr map)
   size_t i = 0;
   for (auto sub_bound : outerBounds)
   {
-    if (lanelet::utils::contains(found_indices, i)) {
-      continue; // Continue if this sub_bound is already accounted for
+    if (lanelet::utils::contains(found_indices, i))
+    {
+      continue;  // Continue if this sub_bound is already accounted for
     }
 
     LaneChangeType change_type = getChangeType(sub_bound.attribute(AttributeName::Type).value(),
@@ -438,30 +442,34 @@ void addInferredPassingControlLine(Area& area, lanelet::LaneletMapPtr map)
 /**
  * @brief Generate DirectionOfTravel from the inferred regulations in the provided map and lanelet
  *        Only adds a regulatory element if the direction of travel is not one_way as that is the default
- * 
+ *
  * @param lanelet The lanelet to generate directions of travel for
  * @param map The map which the lanelet is part of
  * @param default_traffic_rules The set of traffic rules to treat as guidance for interpreting the map
- */ 
-void addInferredDirectionOfTravel(Lanelet& lanelet, lanelet::LaneletMapPtr map, const std::vector<lanelet::traffic_rules::TrafficRulesUPtr>& default_traffic_rules) {
-  
+ */
+void addInferredDirectionOfTravel(Lanelet& lanelet, lanelet::LaneletMapPtr map,
+                                  const std::vector<lanelet::traffic_rules::TrafficRulesUPtr>& default_traffic_rules)
+{
   auto direction_of_travel = lanelet.regulatoryElementsAs<DirectionOfTravel>();
   // If the lanelet does not have an access rule then add one based on the generic traffic rules
   if (direction_of_travel.size() == 0)
-  { // No direction detected so need to check if one is required
+  {  // No direction detected so need to check if one is required
 
     // We want to check for all participants which are currently supported
     std::vector<std::string> allowed_participants;
-    
-    for (const auto& rules : default_traffic_rules) {
-      if (!rules->isOneWay(lanelet)) { // Check if this lanelet is not oneway
+
+    for (const auto& rules : default_traffic_rules)
+    {
+      if (!rules->isOneWay(lanelet))
+      {  // Check if this lanelet is not oneway
         allowed_participants.emplace_back(rules->participant());
       }
     }
 
-    if (allowed_participants.size() > 0) { // Only add bi-directional regulations
-      std::shared_ptr<DirectionOfTravel> rar(
-          new DirectionOfTravel(DirectionOfTravel::buildData(lanelet::utils::getId(), { lanelet }, DirectionOfTravel::BiDirectional, allowed_participants)));
+    if (allowed_participants.size() > 0)
+    {  // Only add bi-directional regulations
+      std::shared_ptr<DirectionOfTravel> rar(new DirectionOfTravel(DirectionOfTravel::buildData(
+          lanelet::utils::getId(), { lanelet }, DirectionOfTravel::BiDirectional, allowed_participants)));
       lanelet.addRegulatoryElement(rar);
       map->add(rar);
     }
@@ -472,7 +480,8 @@ void addInferredDirectionOfTravel(Lanelet& lanelet, lanelet::LaneletMapPtr map, 
 
 void ensureCompliance(lanelet::LaneletMapPtr map)
 {
-  auto default_traffic_rules = getAllGermanTrafficRules(); // Use german traffic rules as default as they most closely match the generic traffic rules
+  auto default_traffic_rules = getAllGermanTrafficRules();  // Use german traffic rules as default as they most closely
+                                                            // match the generic traffic rules
   // Handle lanelets
   for (auto lanelet : map->laneletLayer)
   {

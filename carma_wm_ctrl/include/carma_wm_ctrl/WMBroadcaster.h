@@ -29,11 +29,10 @@
 
 #include "MapConformer.h"
 
-namespace carma_wm_ctrl 
+namespace carma_wm_ctrl
 {
-
 /*!
- * \brief Class which provies exposes map publication and carma_wm update logic 
+ * \brief Class which provies exposes map publication and carma_wm update logic
  *
  * The WMBroadcaster handles updating the lanelet2 base map and publishing the new versions to the rest of the CARMA
  * Platform ROS network. The broadcaster also provides functions for adding or removing geofences from the map and
