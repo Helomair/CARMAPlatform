@@ -4,13 +4,13 @@ To better support dynamic updates and complex situations, CARMA expands on the s
 
 ## Digital Speed Limit
 
-Represents a speed limit which can be set dynamically either through a V2X communications service. In a standard use case a digital speed limit would be expected to have precedence over a speed limit from a traffic sign which is still a supported speed limit mechanism.
+Represents a speed limit which can be set dynamically either through a V2X communications service or other mechanism. In a standard use case a digital speed limit would be expected to have precedence over a speed limit from a traffic sign which is still a supported speed limit mechanism.
 
 ### Parameters
 
 | **Role** | **Possible Type** | **description**                |
 |-------------|--------------|----------------------------------|
-| **refers**    | **lanelet, area**    | The region of the roadway this speed limit applies to |
+| **refers**    | **Lanelet, Area**    | The region of the roadway this speed limit applies to |
 
 ### Custom Attributes
 
@@ -58,7 +58,7 @@ A direction of travel regulation defines if a lanelet is One Way or Bi-Direction
 
 | **Role** | **Possible Type** | **description**                |
 |-------------|--------------|----------------------------------|
-| **refers**    | **lanelet**    | The lanelets this regulation applies to |
+| **refers**    | **Lanelet**    | The lanelets this regulation applies to |
 
 ### Custom Attributes
 
@@ -106,7 +106,7 @@ Represents an access restriction for a lanelet or area. An example would be that
 
 | **Role** | **Possible Type** | **description**                |
 |-------------|--------------|----------------------------------|
-| **refers**    | **lanelet, area**    | The lanelets or areas this regulation applies to |
+| **refers**    | **Lanelet, Area**    | The lanelets or areas this regulation applies to |
 
 ### Custom Attributes
 

@@ -22,7 +22,7 @@
 namespace lanelet
 {
 /**
- * @brief Represents a speed limit which can be set dynamically either through a V2X communications service.
+ * @brief Represents a speed limit which can be set dynamically either through a V2X communications service or other mechanism..
  *        In a standard use case a digital speed limit would be expected to have precedence over a speed limit from a
  * sign
  *
