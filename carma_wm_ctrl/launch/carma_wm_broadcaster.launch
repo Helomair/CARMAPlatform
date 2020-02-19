@@ -12,5 +12,5 @@
 -->
 
 <launch>
-  <node name="carma_wm_broadcaster " pkg="carma_wm_ctrl" type="carma_wm_ctrl_node"/>
+  <node name="carma_wm_broadcaster" pkg="carma_wm_ctrl" type="carma_wm_ctrl_node"/>
 </launch>
